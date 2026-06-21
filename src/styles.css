@@ -1,0 +1,262 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-lime: var(--lime);
+  --color-lime-glow: var(--lime-glow);
+
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* Light theme — clean white with the same royal-blue brand accent */
+  --background: oklch(0.99 0.002 250);
+  --foreground: oklch(0.15 0.02 264);
+  --card: oklch(0.985 0.004 250);
+  --card-foreground: oklch(0.15 0.02 264);
+  --popover: oklch(0.99 0.002 250);
+  --popover-foreground: oklch(0.15 0.02 264);
+  --primary: oklch(0.55 0.27 268);
+  --primary-foreground: oklch(0.99 0.002 250);
+  --secondary: oklch(0.96 0.008 255);
+  --secondary-foreground: oklch(0.18 0.02 264);
+  --muted: oklch(0.95 0.008 255);
+  --muted-foreground: oklch(0.42 0.025 260);
+  --accent: oklch(0.55 0.27 268);
+  --accent-foreground: oklch(0.99 0.002 250);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.88 0.012 255);
+  --input: oklch(0.94 0.01 255);
+  --ring: oklch(0.55 0.27 268);
+
+  --lime: oklch(0.55 0.27 268);
+  --lime-glow: oklch(0.62 0.25 268);
+}
+
+.dark {
+  /* Dark theme — devdabs-inspired royal blue on deep black */
+  --background: oklch(0.045 0.012 264);
+  --foreground: oklch(0.97 0.005 250);
+  --card: oklch(0.085 0.02 264);
+  --card-foreground: oklch(0.97 0.005 250);
+  --popover: oklch(0.085 0.02 264);
+  --popover-foreground: oklch(0.97 0.005 250);
+  --primary: oklch(0.55 0.27 268);
+  --primary-foreground: oklch(0.98 0.005 250);
+  --secondary: oklch(0.16 0.025 264);
+  --secondary-foreground: oklch(0.97 0.005 250);
+  --muted: oklch(0.13 0.02 264);
+  --muted-foreground: oklch(0.7 0.02 255);
+  --accent: oklch(0.55 0.27 268);
+  --accent-foreground: oklch(0.98 0.005 250);
+  --destructive: oklch(0.62 0.22 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.22 0.03 264);
+  --input: oklch(0.18 0.025 264);
+  --ring: oklch(0.55 0.27 268);
+
+  --lime: oklch(0.55 0.27 268);
+  --lime-glow: oklch(0.68 0.24 268);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--lime);
+    color: white;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility grid-overlay {
+  background-image:
+    linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@utility scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in oklch, var(--foreground) 4%, transparent) 0px,
+    color-mix(in oklch, var(--foreground) 4%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+@utility lime-glow {
+  box-shadow:
+    0 0 24px oklch(0.55 0.27 268 / 0.45),
+    0 0 72px oklch(0.55 0.27 268 / 0.22);
+}
+
+@utility text-lime-glow {
+  text-shadow: 0 0 18px oklch(0.68 0.24 268 / 0.65);
+}
+
+@utility glass {
+  background-color: color-mix(in oklch, var(--foreground) 4%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
+}
+
+@utility glass-deep {
+  background-color: color-mix(in oklch, var(--background) 70%, transparent);
+  backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
+}
+
+@keyframes pixel-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+@utility flicker {
+  animation: pixel-flicker 2.4s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@utility animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+  }
+}
+@keyframes marquee-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+  }
+}
+
+@keyframes border-beam {
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+@keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+  }
+  15%,
+  35% {
+    transform: translateZ(0) rotate(90deg);
+  }
+  65%,
+  85% {
+    transform: translateZ(0) rotate(270deg);
+  }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+@keyframes meteor {
+  0% {
+    transform: rotate(215deg) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(215deg) translateX(-500px);
+    opacity: 0;
+  }
+}
+
+@keyframes aurora-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: var(--start-opacity, 0.5);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.4);
+    opacity: 0;
+  }
+}
