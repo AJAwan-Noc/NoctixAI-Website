@@ -16,6 +16,9 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Align npm with production (server runs 11.17.0)
+        run: npm install -g npm@11.17.0
+
       - name: Install frontend dependencies
         run: npm ci
 
