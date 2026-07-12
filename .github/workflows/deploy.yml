@@ -1,0 +1,26 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger remote deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.NOCTIX_SSH_HOST }}
+          port: ${{ secrets.NOCTIX_SSH_PORT }}
+          username: root
+          key: ${{ secrets.NOCTIX_DEPLOY_KEY }}
+          command_timeout: 10m
+          script: deploy
+          # The authorized_keys forced command on the server ignores this
+          # value and always runs deploy-noctix.sh — this line only exists
+          # because the action requires a non-empty script.
