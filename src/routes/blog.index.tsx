@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { SiteShell } from "@/components/noctix/SiteShell";
-import { posts } from "@/content/posts";
+import { getPublishedPosts } from "@/lib/blog-server";
 import { MagicCard } from "@/components/ui/magic-card";
 import { AuroraText } from "@/components/ui/aurora-text";
 
 export const Route = createFileRoute("/blog/")({
+  loader: () => getPublishedPosts(),
   head: () => ({
     meta: [
       { title: "Blog — Noctix AI" },
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndex() {
+  const posts = Route.useLoaderData();
   return (
     <SiteShell>
       <section className="mx-auto max-w-6xl px-4 sm:px-6 py-16 md:py-20">
