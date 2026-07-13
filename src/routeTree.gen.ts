@@ -20,6 +20,7 @@ import { Route as CaseStudiesIndexRouteImport } from './routes/case-studies.inde
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as CaseStudiesSlugRouteImport } from './routes/case-studies.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as BlogPreviewSlugRouteImport } from './routes/blog.preview.$slug'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -76,6 +77,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogPreviewSlugRoute = BlogPreviewSlugRouteImport.update({
+  id: '/blog/preview/$slug',
+  path: '/blog/preview/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/case-studies/$slug': typeof CaseStudiesSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/case-studies/': typeof CaseStudiesIndexRoute
+  '/blog/preview/$slug': typeof BlogPreviewSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/case-studies/$slug': typeof CaseStudiesSlugRoute
   '/blog': typeof BlogIndexRoute
   '/case-studies': typeof CaseStudiesIndexRoute
+  '/blog/preview/$slug': typeof BlogPreviewSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/case-studies/$slug': typeof CaseStudiesSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/case-studies/': typeof CaseStudiesIndexRoute
+  '/blog/preview/$slug': typeof BlogPreviewSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/case-studies/$slug'
     | '/blog/'
     | '/case-studies/'
+    | '/blog/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/case-studies/$slug'
     | '/blog'
     | '/case-studies'
+    | '/blog/preview/$slug'
   id:
     | '__root__'
     | '/'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/case-studies/$slug'
     | '/blog/'
     | '/case-studies/'
+    | '/blog/preview/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +183,7 @@ export interface RootRouteChildren {
   CaseStudiesSlugRoute: typeof CaseStudiesSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CaseStudiesIndexRoute: typeof CaseStudiesIndexRoute
+  BlogPreviewSlugRoute: typeof BlogPreviewSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/preview/$slug': {
+      id: '/blog/preview/$slug'
+      path: '/blog/preview/$slug'
+      fullPath: '/blog/preview/$slug'
+      preLoaderRoute: typeof BlogPreviewSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +287,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaseStudiesSlugRoute: CaseStudiesSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   CaseStudiesIndexRoute: CaseStudiesIndexRoute,
+  BlogPreviewSlugRoute: BlogPreviewSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
