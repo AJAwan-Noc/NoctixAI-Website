@@ -11,6 +11,7 @@ const links: { to: string; label: string; exact?: boolean }[] = [
   { to: "/blog", label: "Blog" },
   { to: "/about", label: "About" },
   { to: "/faq", label: "FAQ" },
+  { to: "/savings-calculator", label: "Calculator" },
   { to: "/contact", label: "Contact" },
 ];
 
