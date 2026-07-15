@@ -22,18 +22,41 @@ export type BlogPost = BlogPostSummary & {
   publishedAt: string | null;
 };
 
-// Used on /blog — published posts only, newest first.
-export const getPublishedPosts = createServerFn({ method: "GET" }).handler(
-  async (): Promise<BlogPostSummary[]> => {
+export type PaginatedPosts = {
+  posts: BlogPostSummary[];
+  page: number;
+  totalPages: number;
+  totalCount: number;
+};
+
+const POSTS_PER_PAGE = 12;
+
+// Used on /blog — published posts only, newest first, paginated.
+export const getPublishedPosts = createServerFn({ method: "GET" })
+  .validator((page: unknown) => {
+    const parsed = typeof page === "number" ? page : Number(page);
+    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1;
+  })
+  .handler(async ({ data: page }): Promise<PaginatedPosts> => {
+    const offset = (page - 1) * POSTS_PER_PAGE;
     const { rows } = await contentDb.query(
-      `select slug, title, description, keyword, read_time as "readTime"
+      `select slug, title, description, keyword, read_time as "readTime",
+              count(*) over() as "totalCount"
        from blog_posts
        where status = 'published'
-       order by published_at desc`,
+       order by published_at desc
+       limit $1 offset $2`,
+      [POSTS_PER_PAGE, offset],
     );
-    return rows;
-  },
-);
+    const totalCount = rows[0] ? Number(rows[0].totalCount) : 0;
+    const posts = rows.map(({ totalCount: _tc, ...rest }: any) => rest);
+    return {
+      posts,
+      page,
+      totalPages: Math.max(1, Math.ceil(totalCount / POSTS_PER_PAGE)),
+      totalCount,
+    };
+  });
 
 // Used on /blog/$slug — a single published post.
 export const getPostBySlug = createServerFn({ method: "GET" })

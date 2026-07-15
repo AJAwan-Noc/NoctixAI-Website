@@ -4,7 +4,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 import { MagicCard } from "@/components/ui/magic-card";
 
 const highlights = [
-  { code: "01", title: "AI Voice Agents", body: "Voxie answers. Voxo dials. 24/7." },
+  { code: "01", title: "AI Voice Agents", body: "Answers calls. Dials leads. 24/7." },
   { code: "02", title: "CRM & Workflow Automation", body: "Connect your stack. Kill manual work." },
   { code: "03", title: "Lead Gen Systems", body: "Find, qualify, and route on autopilot." },
   { code: "04", title: "Dashboards & Reporting", body: "Real-time visibility, one screen." },

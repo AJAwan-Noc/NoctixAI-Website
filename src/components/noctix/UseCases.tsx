@@ -4,14 +4,14 @@ import { BorderBeam } from "@/components/ui/border-beam";
 
 const cases = [
   {
-    tag: "Voxie",
+    tag: "Inbound",
     title: "Missed call recovery",
     body: "Inbound AI agent answers every call, qualifies, and books — even after hours.",
     featured: true,
     span: "md:col-span-2 md:row-span-2",
   },
   {
-    tag: "Voxo",
+    tag: "Outbound",
     title: "Cold outreach systems",
     body: "Outbound agents dial, qualify, and route hot leads straight into your CRM.",
     featured: true,

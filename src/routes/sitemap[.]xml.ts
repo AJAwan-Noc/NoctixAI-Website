@@ -14,9 +14,14 @@ const STATIC_PAGES = [
 ];
 
 async function buildSitemapXml(): Promise<string> {
-  const { rows } = await contentDb.query(
-    `select slug, published_at from blog_posts where status = 'published' order by published_at desc`
-  );
+  const [blogResult, landingResult] = await Promise.all([
+    contentDb.query(
+      `select slug, published_at from blog_posts where status = 'published' order by published_at desc`
+    ),
+    contentDb.query(
+      `select service_slug from landing_pages order by service_slug`
+    ),
+  ]);
 
   const staticUrls = STATIC_PAGES.map(
     (p) => `  <url>
@@ -26,7 +31,7 @@ async function buildSitemapXml(): Promise<string> {
   </url>`
   );
 
-  const postUrls = rows.map(
+  const postUrls = blogResult.rows.map(
     (r: { slug: string; published_at: string }) => `  <url>
     <loc>https://noctix.app/blog/${r.slug}</loc>
     <lastmod>${new Date(r.published_at).toISOString().split("T")[0]}</lastmod>
@@ -35,9 +40,17 @@ async function buildSitemapXml(): Promise<string> {
   </url>`
   );
 
+  const serviceUrls = landingResult.rows.map(
+    (r: { service_slug: string }) => `  <url>
+    <loc>https://noctix.app/services/${r.service_slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>`
+  );
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${[...staticUrls, ...postUrls].join("\n")}
+${[...staticUrls, ...serviceUrls, ...postUrls].join("\n")}
 </urlset>`;
 }
 
