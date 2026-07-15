@@ -189,6 +189,65 @@ app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
   }
 });
 
+const freebieRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: safeValidationResponse,
+});
+
+function extractValidEmail(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return null;
+  }
+
+  const email = cleanStringField(body.email);
+
+  if (email === null || !email) {
+    return null;
+  }
+
+  const lower = email.toLowerCase();
+
+  if (!isValidEmail(lower)) {
+    return null;
+  }
+
+  return lower;
+}
+
+app.post("/api/freebie-request", freebieRateLimiter, async (req, res) => {
+  const email = extractValidEmail(req.body);
+
+  if (!email) {
+    return res.status(400).json(safeValidationResponse);
+  }
+
+  if (!process.env.FREEBIE_WEBHOOK_URL || !process.env.FREEBIE_WEBHOOK_SECRET) {
+    return res.status(500).json(safeErrorResponse);
+  }
+
+  try {
+    const n8nResponse = await fetch(process.env.FREEBIE_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-noctix-secret": process.env.FREEBIE_WEBHOOK_SECRET,
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!n8nResponse.ok) {
+      return res.status(500).json(safeErrorResponse);
+    }
+
+    return res.json({ success: true, message: "Guide is on its way" });
+  } catch (error) {
+    return res.status(500).json(safeErrorResponse);
+  }
+});
+
 app.use((err, req, res, next) => {
   if (err && (err.type === "entity.too.large" || err.type === "entity.parse.failed")) {
     return res.status(400).json(safeValidationResponse);
