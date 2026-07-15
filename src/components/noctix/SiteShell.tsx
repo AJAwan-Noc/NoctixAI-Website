@@ -3,6 +3,7 @@ import { SmoothScroll } from "./SmoothScroll";
 import { SiteBackground } from "./SiteBackground";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
+import { FreebieTeaser } from "./FreebieTeaser";
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
@@ -13,6 +14,8 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <div className="relative z-10">
         <Footer />
       </div>
+      <FreebieTeaser />
     </SmoothScroll>
   );
 }
+

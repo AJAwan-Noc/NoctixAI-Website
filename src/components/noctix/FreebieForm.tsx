@@ -4,10 +4,11 @@ import { ShimmerButton } from "@/components/ui/shimmer-button";
 
 const FREEBIE_ENDPOINT = "https://api.noctix.app/api/freebie-request";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CLAIMED_KEY = "noctix_freebie_claimed";
 
 export function FreebieForm() {
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [state, setState] = useState<"idle" | "submitting" | "success" | "limited" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent) {
@@ -29,8 +30,15 @@ export function FreebieForm() {
       if (!response.ok || data.success !== true) {
         throw new Error(data.message || "Submission failed");
       }
-      setState("success");
-    } catch {
+
+      try {
+        localStorage.setItem(CLAIMED_KEY, "1");
+      } catch {
+        // localStorage unavailable -- not critical, teaser will just show again
+      }
+
+      setState(data.limited ? "limited" : "success");
+    } catch (err) {
       setState("error");
     }
   }
@@ -44,6 +52,24 @@ export function FreebieForm() {
         <p className="mt-2 text-sm text-foreground/60">
           Your copy of the guide is on its way. If you don't see it in a minute or two, check your
           spam or promotions folder.
+        </p>
+      </div>
+    );
+  }
+
+  if (state === "limited") {
+    return (
+      <div className="py-6">
+        <div className="font-display text-xl font-semibold text-[var(--lime)]">
+          You've already got this one.
+        </div>
+        <p className="mt-2 text-sm text-foreground/60">
+          Looks like this email has already requested the guide a few times. If you genuinely need
+          another copy, reach out directly at{" "}
+          <a href="mailto:hello@noctix.app" className="underline">
+            hello@noctix.app
+          </a>
+          .
         </p>
       </div>
     );

@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const path = require("path");
 const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
@@ -142,6 +143,23 @@ app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
 
+const PLAYBOOK_PDF_PATH = path.join(__dirname, "assets", "noctix-automation-playbook.pdf");
+
+app.get("/internal/automation-playbook.pdf", (req, res) => {
+  const providedSecret = req.headers["x-noctix-secret"];
+
+  if (!process.env.PLAYBOOK_ASSET_SECRET || providedSecret !== process.env.PLAYBOOK_ASSET_SECRET) {
+    // 404, not 401/403 -- don't reveal that a protected route exists here at all
+    return res.status(404).end();
+  }
+
+  return res.sendFile(PLAYBOOK_PDF_PATH, (err) => {
+    if (err && !res.headersSent) {
+      res.status(404).end();
+    }
+  });
+});
+
 app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
   const payload = validateAndCleanForm(req.body);
 
@@ -242,7 +260,20 @@ app.post("/api/freebie-request", freebieRateLimiter, async (req, res) => {
       return res.status(500).json(safeErrorResponse);
     }
 
-    return res.json({ success: true, message: "Guide is on its way" });
+    let n8nData = {};
+    try {
+      n8nData = await n8nResponse.json();
+    } catch (e) {
+      n8nData = {};
+    }
+
+    const limited = n8nData.status === "limited";
+
+    return res.json({
+      success: true,
+      limited,
+      message: limited ? "Request limit reached" : "Guide is on its way",
+    });
   } catch (error) {
     return res.status(500).json(safeErrorResponse);
   }

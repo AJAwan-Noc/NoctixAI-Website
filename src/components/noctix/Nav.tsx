@@ -12,6 +12,7 @@ const links: { to: string; label: string; exact?: boolean }[] = [
   { to: "/about", label: "About" },
   { to: "/faq", label: "FAQ" },
   { to: "/savings-calculator", label: "Calculator" },
+  { to: "/automation-playbook", label: "Free Guide" },
   { to: "/contact", label: "Contact" },
 ];
 
