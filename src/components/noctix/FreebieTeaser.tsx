@@ -61,7 +61,7 @@ export function FreebieTeaser() {
   if (!visible || EXCLUDED_PATHS.includes(pathname)) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-xs border border-foreground/15 bg-background/95 p-4 shadow-lg backdrop-blur">
+    <div className="fixed bottom-20 right-4 z-[60] max-w-xs border border-foreground/15 bg-background/95 p-4 shadow-lg backdrop-blur">
       <button
         type="button"
         onClick={dismiss}

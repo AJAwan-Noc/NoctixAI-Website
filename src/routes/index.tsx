@@ -11,6 +11,7 @@ import { UseCases } from "@/components/noctix/UseCases";
 import { BookingCTA } from "@/components/noctix/BookingCTA";
 import { FinalCTA } from "@/components/noctix/FinalCTA";
 import { Footer } from "@/components/noctix/Footer";
+import { FreebieTeaser } from "@/components/noctix/FreebieTeaser";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,6 +50,7 @@ function Index() {
       <div className="relative z-10">
         <Footer />
       </div>
+      <FreebieTeaser />
     </SmoothScroll>
   );
 }
