@@ -457,6 +457,22 @@ async function getTableColumns(tableName) {
   return rows;
 }
 
+async function getPrimaryKeyColumn(tableName) {
+  const { rows } = await adminDb.query(
+    `SELECT kcu.column_name
+     FROM information_schema.table_constraints tc
+     JOIN information_schema.key_column_usage kcu
+       ON tc.constraint_name = kcu.constraint_name
+      AND tc.table_schema = kcu.table_schema
+     WHERE tc.constraint_type = 'PRIMARY KEY'
+       AND tc.table_schema = 'public'
+       AND tc.table_name = $1
+     LIMIT 1`,
+    [tableName]
+  );
+  return rows[0]?.column_name ?? null;
+}
+
 function quoteIdent(name) {
   // Double-quote identifier (already validated against information_schema)
   return `"${name.replace(/"/g, '""')}"`;
@@ -577,6 +593,14 @@ adminRouter.put("/api/tables/:table/:id", requireAdminAuth, async (req, res) => 
       return res.status(400).json({ success: false, message: "Invalid table name." });
     }
 
+    const pkColumn = await getPrimaryKeyColumn(validTable);
+    if (!pkColumn) {
+      return res.status(400).json({
+        success: false,
+        message: "This table has no primary key and cannot be edited through the admin panel.",
+      });
+    }
+
     const columns = await getTableColumns(validTable);
     const validColumnNames = columns.map((c) => c.column_name);
     const body = req.body?.data;
@@ -607,7 +631,7 @@ adminRouter.put("/api/tables/:table/:id", requireAdminAuth, async (req, res) => 
     const { rows } = await adminDb.query(
       `UPDATE ${quoteIdent(validTable)}
        SET ${setClauses.join(", ")}
-       WHERE "id" = $${idx}
+       WHERE ${quoteIdent(pkColumn)} = $${idx}
        RETURNING *`,
       values
     );
@@ -634,6 +658,14 @@ adminRouter.delete("/api/tables/:table/:id", requireAdminAuth, async (req, res) 
       return res.status(400).json({ success: false, message: "Invalid table name." });
     }
 
+    const pkColumn = await getPrimaryKeyColumn(validTable);
+    if (!pkColumn) {
+      return res.status(400).json({
+        success: false,
+        message: "This table has no primary key and cannot be edited through the admin panel.",
+      });
+    }
+
     const rowId = req.params.id;
     const confirmTableName = req.body?.confirmTableName;
 
@@ -647,7 +679,7 @@ adminRouter.delete("/api/tables/:table/:id", requireAdminAuth, async (req, res) 
 
     // Snapshot the row before deleting
     const { rows: existing } = await adminDb.query(
-      `SELECT * FROM ${quoteIdent(validTable)} WHERE "id" = $1 LIMIT 1`,
+      `SELECT * FROM ${quoteIdent(validTable)} WHERE ${quoteIdent(pkColumn)} = $1 LIMIT 1`,
       [rowId]
     );
 
@@ -658,7 +690,7 @@ adminRouter.delete("/api/tables/:table/:id", requireAdminAuth, async (req, res) 
     const snapshot = existing[0];
 
     await adminDb.query(
-      `DELETE FROM ${quoteIdent(validTable)} WHERE "id" = $1`,
+      `DELETE FROM ${quoteIdent(validTable)} WHERE ${quoteIdent(pkColumn)} = $1`,
       [rowId]
     );
 

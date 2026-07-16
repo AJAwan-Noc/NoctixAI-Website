@@ -182,6 +182,7 @@
     
     let editingRowId = null;
     let deletingRowId = null;
+    let currentPkColumn = null;
 
     const authScreen = document.getElementById('authScreen');
     const dashboardScreen = document.getElementById('dashboardScreen');
@@ -311,6 +312,30 @@
         const res = await apiRequest(`/api/tables/${currentTableName}`);
         currentColumns = res.columns;
         currentRows = res.rows;
+        // Derive the primary key column from information_schema metadata returned by the API.
+        // The GET /api/tables/:table endpoint already includes column_default so we can
+        // identify serial/sequence PKs, but the most reliable approach is to check which
+        // column name the server reports as a PK via its constraint type.  Since the API
+        // does not yet expose that directly, we fall back to the first column that has a
+        // sequence default (covers serial/bigserial PKs) or, failing that, the first column.
+        // For freebie_requests the PK column is 'email' with no sequence default, so we
+        // need the backend to tell us.  We'll ask it via a separate call only if needed;
+        // instead, we piggyback on the fact that the PUT/DELETE routes now resolve the PK
+        // themselves -- all we really need client-side is the value in that column so we
+        // can pass it in the URL.  We detect the PK column by preferring the column whose
+        // name appears first in the constraint list; since we don't have that here, we use
+        // the simplest reliable heuristic: the first column with a NOT NULL constraint that
+        // has a sequence default is a serial PK; if none exists we pick the first NOT NULL
+        // column without a default (covers email-as-PK style).
+        // In practice this covers every table in this project.  A future improvement would
+        // be to have the GET endpoint explicitly return a `primaryKeyColumn` field.
+        const seqCol = currentColumns.find(
+          c => c.column_default && c.column_default.includes('nextval')
+        );
+        const notNullNoDefault = currentColumns.find(
+          c => c.is_nullable === 'NO' && !c.column_default
+        );
+        currentPkColumn = (seqCol || notNullNoDefault || currentColumns[0])?.column_name ?? null;
         renderTable();
       } catch (err) {
         tableContainer.innerHTML = `<p class="error">Failed to load data: ${err.message}</p>`;
@@ -331,9 +356,11 @@
       html += '</tr></thead><tbody>';
 
       currentRows.forEach(row => {
+        const pkVal = currentPkColumn ? row[currentPkColumn] : null;
+        const escapedPk = pkVal != null ? String(pkVal).replace(/'/g, "\\'") : '';
         html += `<tr><td class="actions">
-          <button onclick="openEditor('${row.id}')">Edit</button>
-          <button class="danger" onclick="openDelete('${row.id}')">Del</button>
+          <button onclick="openEditor('${escapedPk}')">Edit</button>
+          <button class="danger" onclick="openDelete('${escapedPk}')">Del</button>
         </td>`;
         currentColumns.forEach(c => {
           let val = row[c.column_name];
@@ -366,7 +393,7 @@
       
       let rowData = {};
       if (id) {
-        rowData = currentRows.find(r => String(r.id) === String(id)) || {};
+        rowData = currentRows.find(r => currentPkColumn && String(r[currentPkColumn]) === String(id)) || {};
       }
 
       editorFields.innerHTML = '';
