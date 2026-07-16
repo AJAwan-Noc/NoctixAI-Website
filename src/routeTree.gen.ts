@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SavingsCalculatorRouteImport } from './routes/savings-calculator'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -19,6 +18,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AutomationPlaybookRouteImport } from './routes/automation-playbook'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServicesIndexRouteImport } from './routes/services.index'
 import { Route as CaseStudiesIndexRouteImport } from './routes/case-studies.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ServicesSlugRouteImport } from './routes/services.$slug'
@@ -34,11 +34,6 @@ const TermsRoute = TermsRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServicesRoute = ServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SavingsCalculatorRoute = SavingsCalculatorRouteImport.update({
@@ -76,6 +71,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesIndexRoute = ServicesIndexRouteImport.update({
+  id: '/services/',
+  path: '/services/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaseStudiesIndexRoute = CaseStudiesIndexRouteImport.update({
   id: '/case-studies/',
   path: '/case-studies/',
@@ -87,9 +87,9 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServicesSlugRoute = ServicesSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ServicesRoute,
+  id: '/services/$slug',
+  path: '/services/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CaseStudiesSlugRoute = CaseStudiesSlugRouteImport.update({
   id: '/case-studies/$slug',
@@ -115,7 +115,6 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
   '/savings-calculator': typeof SavingsCalculatorRoute
-  '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -123,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/services/$slug': typeof ServicesSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/case-studies/': typeof CaseStudiesIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/blog/preview/$slug': typeof BlogPreviewSlugRoute
 }
 export interface FileRoutesByTo {
@@ -133,7 +133,6 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
   '/savings-calculator': typeof SavingsCalculatorRoute
-  '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -141,6 +140,7 @@ export interface FileRoutesByTo {
   '/services/$slug': typeof ServicesSlugRoute
   '/blog': typeof BlogIndexRoute
   '/case-studies': typeof CaseStudiesIndexRoute
+  '/services': typeof ServicesIndexRoute
   '/blog/preview/$slug': typeof BlogPreviewSlugRoute
 }
 export interface FileRoutesById {
@@ -152,7 +152,6 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/privacy': typeof PrivacyRoute
   '/savings-calculator': typeof SavingsCalculatorRoute
-  '/services': typeof ServicesRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -160,6 +159,7 @@ export interface FileRoutesById {
   '/services/$slug': typeof ServicesSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/case-studies/': typeof CaseStudiesIndexRoute
+  '/services/': typeof ServicesIndexRoute
   '/blog/preview/$slug': typeof BlogPreviewSlugRoute
 }
 export interface FileRouteTypes {
@@ -172,7 +172,6 @@ export interface FileRouteTypes {
     | '/faq'
     | '/privacy'
     | '/savings-calculator'
-    | '/services'
     | '/sitemap.xml'
     | '/terms'
     | '/blog/$slug'
@@ -180,6 +179,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/blog/'
     | '/case-studies/'
+    | '/services/'
     | '/blog/preview/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -190,7 +190,6 @@ export interface FileRouteTypes {
     | '/faq'
     | '/privacy'
     | '/savings-calculator'
-    | '/services'
     | '/sitemap.xml'
     | '/terms'
     | '/blog/$slug'
@@ -198,6 +197,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/blog'
     | '/case-studies'
+    | '/services'
     | '/blog/preview/$slug'
   id:
     | '__root__'
@@ -208,7 +208,6 @@ export interface FileRouteTypes {
     | '/faq'
     | '/privacy'
     | '/savings-calculator'
-    | '/services'
     | '/sitemap.xml'
     | '/terms'
     | '/blog/$slug'
@@ -216,6 +215,7 @@ export interface FileRouteTypes {
     | '/services/$slug'
     | '/blog/'
     | '/case-studies/'
+    | '/services/'
     | '/blog/preview/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -227,13 +227,14 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   PrivacyRoute: typeof PrivacyRoute
   SavingsCalculatorRoute: typeof SavingsCalculatorRoute
-  ServicesRoute: typeof ServicesRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CaseStudiesSlugRoute: typeof CaseStudiesSlugRoute
+  ServicesSlugRoute: typeof ServicesSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CaseStudiesIndexRoute: typeof CaseStudiesIndexRoute
+  ServicesIndexRoute: typeof ServicesIndexRoute
   BlogPreviewSlugRoute: typeof BlogPreviewSlugRoute
 }
 
@@ -251,13 +252,6 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/services': {
-      id: '/services'
-      path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/savings-calculator': {
@@ -309,6 +303,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/services/': {
+      id: '/services/'
+      path: '/services'
+      fullPath: '/services/'
+      preLoaderRoute: typeof ServicesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/case-studies/': {
       id: '/case-studies/'
       path: '/case-studies'
@@ -325,10 +326,10 @@ declare module '@tanstack/react-router' {
     }
     '/services/$slug': {
       id: '/services/$slug'
-      path: '/$slug'
+      path: '/services/$slug'
       fullPath: '/services/$slug'
       preLoaderRoute: typeof ServicesSlugRouteImport
-      parentRoute: typeof ServicesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/case-studies/$slug': {
       id: '/case-studies/$slug'
@@ -354,18 +355,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ServicesRouteChildren {
-  ServicesSlugRoute: typeof ServicesSlugRoute
-}
-
-const ServicesRouteChildren: ServicesRouteChildren = {
-  ServicesSlugRoute: ServicesSlugRoute,
-}
-
-const ServicesRouteWithChildren = ServicesRoute._addFileChildren(
-  ServicesRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -374,13 +363,14 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   PrivacyRoute: PrivacyRoute,
   SavingsCalculatorRoute: SavingsCalculatorRoute,
-  ServicesRoute: ServicesRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
   CaseStudiesSlugRoute: CaseStudiesSlugRoute,
+  ServicesSlugRoute: ServicesSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   CaseStudiesIndexRoute: CaseStudiesIndexRoute,
+  ServicesIndexRoute: ServicesIndexRoute,
   BlogPreviewSlugRoute: BlogPreviewSlugRoute,
 }
 export const routeTree = rootRouteImport
