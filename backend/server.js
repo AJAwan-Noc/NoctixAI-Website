@@ -32,7 +32,18 @@ const safeErrorResponse = {
   message: "Something went wrong. Please try again.",
 };
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        // Allow inline scripts (required by admin.html) and the Cloudflare
+        // beacon script injected when the site is proxied through Cloudflare.
+        "script-src": ["'self'", "'unsafe-inline'", "https://static.cloudflareinsights.com"],
+      },
+    },
+  })
+);
 app.use(
   cors({
     origin(origin, callback) {
