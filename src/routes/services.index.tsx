@@ -9,7 +9,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { AuroraText } from "@/components/ui/aurora-text";
 
-export const Route = createFileRoute("/services")({
+export const Route = createFileRoute("/services/")({
   head: () => ({
     meta: [
       { title: "Services — Noctix AI" },
