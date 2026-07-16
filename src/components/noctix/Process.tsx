@@ -20,7 +20,7 @@ const steps = [
   {
     n: 4,
     title: "Deploy the AI Agents",
-    body: "Go live with Voxie, Voxo, and the automation stack — connected to your CRM and tools.",
+    body: "Go live with your voice agents and the automation stack — connected to your CRM and tools.",
   },
   {
     n: 5,

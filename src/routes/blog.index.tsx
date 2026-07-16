@@ -1,12 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import { motion } from "framer-motion";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { getPublishedPosts } from "@/lib/blog-server";
 import { MagicCard } from "@/components/ui/magic-card";
 import { AuroraText } from "@/components/ui/aurora-text";
 
+const searchSchema = z.object({
+  page: z.coerce.number().int().positive().catch(1),
+});
+
 export const Route = createFileRoute("/blog/")({
-  loader: () => getPublishedPosts(),
+  validateSearch: searchSchema,
+  loaderDeps: ({ search }) => ({ page: search.page }),
+  loader: ({ deps }) => getPublishedPosts({ data: deps.page }),
   head: () => ({
     meta: [
       { title: "Blog — Noctix AI" },
@@ -23,7 +30,7 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndex() {
-  const posts = Route.useLoaderData();
+  const { posts, page, totalPages } = Route.useLoaderData();
   return (
     <SiteShell>
       <section className="mx-auto max-w-6xl px-4 sm:px-6 py-16 md:py-20">
@@ -70,6 +77,43 @@ function BlogIndex() {
             </motion.article>
           ))}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-4">
+            {page > 1 ? (
+              <Link
+                to="/blog"
+                search={{ page: page - 1 }}
+                className="border border-foreground/20 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/70 transition-colors hover:border-[var(--lime)] hover:text-[var(--lime)]"
+              >
+                ← Previous
+              </Link>
+            ) : (
+              <span className="border border-foreground/10 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/25 cursor-not-allowed">
+                ← Previous
+              </span>
+            )}
+
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50">
+              Page <span className="text-[var(--lime)]">{page}</span> of {totalPages}
+            </span>
+
+            {page < totalPages ? (
+              <Link
+                to="/blog"
+                search={{ page: page + 1 }}
+                className="border border-foreground/20 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/70 transition-colors hover:border-[var(--lime)] hover:text-[var(--lime)]"
+              >
+                Next →
+              </Link>
+            ) : (
+              <span className="border border-foreground/10 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/25 cursor-not-allowed">
+                Next →
+              </span>
+            )}
+          </div>
+        )}
       </section>
     </SiteShell>
   );

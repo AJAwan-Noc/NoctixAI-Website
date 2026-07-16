@@ -5,10 +5,14 @@ import { ShimmerButton } from "@/components/ui/shimmer-button";
 const WEBSITE_FORM_ENDPOINT = "https://api.noctix.app/api/website-form-filled";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+type OptionalField = "company_name" | "website" | "message";
+
 type SimpleLeadFormProps = {
   serviceNeeded: string;
   submitLabel?: string;
   successMessage?: string;
+  /** Additional optional fields beyond the default name / email / phone. */
+  fields?: OptionalField[];
 };
 
 function getBrowserTimezone() {
@@ -19,16 +23,28 @@ function getBrowserTimezone() {
   }
 }
 
+const FIELD_META: Record<OptionalField, { type: string; placeholder: string }> = {
+  company_name: { type: "text", placeholder: "Company name (optional)" },
+  website: { type: "url", placeholder: "Website (optional)" },
+  message: { type: "textarea", placeholder: "Anything we should know? (optional)" },
+};
+
 export function SimpleLeadForm({
   serviceNeeded,
   submitLabel = "Send my details",
   successMessage = "Thanks, we'll be in touch shortly.",
+  fields = [],
 }: SimpleLeadFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [extras, setExtras] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+
+  function setExtra(key: string, value: string) {
+    setExtras((prev) => ({ ...prev, [key]: value }));
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -50,12 +66,12 @@ export function SimpleLeadForm({
       name: name.trim(),
       email: email.trim(),
       phone: phone.trim(),
-      company_name: "",
-      website: "",
+      company_name: (extras.company_name ?? "").trim(),
+      website: (extras.website ?? "").trim(),
       service_needed: serviceNeeded,
       budget_range: "",
       timeline: "",
-      message: "",
+      message: (extras.message ?? "").trim(),
       timezone: getBrowserTimezone(),
       company_website_confirm: "",
     };
@@ -80,7 +96,7 @@ export function SimpleLeadForm({
     return (
       <div className="py-6">
         <div className="font-display text-xl font-semibold text-[var(--lime)]">
-          Thanks -- that's in.
+          Thanks — that's in.
         </div>
         <p className="mt-2 text-sm text-foreground/60">{successMessage}</p>
       </div>
@@ -112,6 +128,31 @@ export function SimpleLeadForm({
         onChange={(e) => setPhone(e.target.value)}
         className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
       />
+      {fields.map((key) => {
+        const meta = FIELD_META[key];
+        if (meta.type === "textarea") {
+          return (
+            <textarea
+              key={key}
+              rows={3}
+              placeholder={meta.placeholder}
+              value={extras[key] ?? ""}
+              onChange={(e) => setExtra(key, e.target.value)}
+              className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
+            />
+          );
+        }
+        return (
+          <input
+            key={key}
+            type={meta.type}
+            placeholder={meta.placeholder}
+            value={extras[key] ?? ""}
+            onChange={(e) => setExtra(key, e.target.value)}
+            className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
+          />
+        );
+      })}
       {error && <p className="text-sm text-red-400">{error}</p>}
       <MagneticButton>
         <ShimmerButton

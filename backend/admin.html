@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Noctix AI</title>
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --border: rgba(255, 255, 255, 0.15);
+      --accent: #b48cff;
+      --accent-hover: #9b6cff;
+      --danger: #ff5c5c;
+    }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+    h1, h2, h3 { margin: 0 0 1rem 0; font-weight: 500; }
+    
+    /* Login forms */
+    .auth-container {
+      max-width: 400px;
+      margin: 10vh auto;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    input, select, textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+      font-family: monospace;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    button:hover { background: var(--accent-hover); }
+    button.danger { background: var(--danger); color: white; }
+    
+    .error { color: var(--danger); margin-bottom: 1rem; font-size: 0.9em; }
+    
+    /* Dashboard */
+    .controls { margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9em; }
+    th, td { border: 1px solid var(--border); padding: 0.5rem; text-align: left; }
+    th { background: rgba(255, 255, 255, 0.05); }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+    
+    .actions button { padding: 0.2rem 0.5rem; font-size: 0.8em; margin-right: 0.5rem; }
+    
+    /* Modals */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none; justify-content: center; align-items: center;
+      z-index: 100;
+    }
+    .modal {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal.open { display: block; }
+    .modal-overlay.open { display: flex; }
+    
+    .field-group { margin-bottom: 1rem; }
+    .field-group label { display: block; margin-bottom: 0.2rem; font-size: 0.9em; color: rgba(255,255,255,0.7); }
+    
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="auth-container">
+    <h2>Admin Login</h2>
+    <div id="authError" class="error hidden"></div>
+    <form id="loginForm">
+      <input type="password" id="passwordInput" placeholder="Password" required autofocus />
+      <input type="text" id="totpInput" placeholder="Authenticator Code" required pattern="[0-9]{6}" />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- DASHBOARD SCREEN -->
+  <div id="dashboardScreen" class="container hidden">
+    <header>
+      <h2>Noctix AI Admin</h2>
+      <button id="logoutBtn" class="danger">Logout</button>
+    </header>
+    
+    <div class="controls">
+      <select id="tableSelect">
+        <option value="">Select a table...</option>
+      </select>
+      <button id="refreshBtn">Refresh</button>
+      <button id="addBtn">Add Row</button>
+    </div>
+    
+    <div id="tableContainer">
+      <p style="color: rgba(255,255,255,0.5)">Select a table to view data.</p>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT MODAL -->
+  <div id="editorModalOverlay" class="modal-overlay">
+    <div class="modal">
+      <h3 id="editorTitle">Edit Row</h3>
+      <div id="editorError" class="error hidden"></div>
+      <form id="editorForm">
+        <div id="editorFields"></div>
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+          <button type="submit">Save</button>
+          <button type="button" id="closeEditorBtn" style="background: transparent; border: 1px solid var(--border);">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DELETE MODAL -->
+  <div id="deleteModalOverlay" class="modal-overlay">
+    <div class="modal" style="max-width: 400px;">
+      <h3>Confirm Deletion</h3>
+      <div id="deleteError" class="error hidden"></div>
+      <p>Are you sure you want to delete this row? This action cannot be undone.</p>
+      <p>Please type <strong id="deleteTargetName"></strong> to confirm.</p>
+      <form id="deleteForm">
+        <input type="text" id="deleteConfirmInput" required autocomplete="off" />
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+          <button type="submit" class="danger">Delete</button>
+          <button type="button" id="closeDeleteBtn" style="background: transparent; border: 1px solid var(--border);">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let csrfToken = '';
+    let currentTables = [];
+    let currentTableName = '';
+    let currentColumns = [];
+    let currentRows = [];
+    
+    let editingRowId = null;
+    let deletingRowId = null;
+    let currentPkColumn = null;
+
+    const authScreen = document.getElementById('authScreen');
+    const dashboardScreen = document.getElementById('dashboardScreen');
+    const authError = document.getElementById('authError');
+    const loginForm = document.getElementById('loginForm');
+    const tableSelect = document.getElementById('tableSelect');
+    const tableContainer = document.getElementById('tableContainer');
+    
+    const editorModalOverlay = document.getElementById('editorModalOverlay');
+    const editorForm = document.getElementById('editorForm');
+    const editorFields = document.getElementById('editorFields');
+    const editorTitle = document.getElementById('editorTitle');
+    const editorError = document.getElementById('editorError');
+    
+    const deleteModalOverlay = document.getElementById('deleteModalOverlay');
+    const deleteForm = document.getElementById('deleteForm');
+    const deleteError = document.getElementById('deleteError');
+    const deleteConfirmInput = document.getElementById('deleteConfirmInput');
+    const deleteTargetName = document.getElementById('deleteTargetName');
+
+    // ── API Helpers ──
+    async function apiRequest(endpoint, options = {}) {
+      const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+      if (csrfToken) {
+        headers['x-csrf-token'] = csrfToken;
+      }
+      
+      const res = await fetch('/admin' + endpoint, {
+        ...options,
+        headers: { ...headers, ...(options.headers || {}) }
+      });
+      
+      const data = await res.json();
+      
+      if (res.status === 401 || res.status === 403) {
+        showAuth();
+        throw new Error(data.message || 'Unauthorized');
+      }
+      
+      if (!res.ok) {
+        throw new Error(data.message || 'API request failed');
+      }
+      
+      return data;
+    }
+
+    // ── Auth Flow ──
+    function showAuth() {
+      authScreen.classList.remove('hidden');
+      dashboardScreen.classList.add('hidden');
+      csrfToken = '';
+    }
+
+    function showDashboard() {
+      authScreen.classList.add('hidden');
+      dashboardScreen.classList.remove('hidden');
+      loadTables();
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      authError.classList.add('hidden');
+      
+      try {
+        const res = await apiRequest('/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            password: document.getElementById('passwordInput').value,
+            totp: document.getElementById('totpInput').value
+          })
+        });
+        
+        csrfToken = res.csrfToken;
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('totpInput').value = '';
+        showDashboard();
+      } catch (err) {
+        authError.textContent = err.message;
+        authError.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await apiRequest('/logout', { method: 'POST' });
+      } catch (e) {}
+      showAuth();
+    });
+
+    // ── Dashboard ──
+    async function loadTables() {
+      try {
+        const res = await apiRequest('/api/tables');
+        currentTables = res.tables;
+        
+        tableSelect.innerHTML = '<option value="">Select a table...</option>';
+        currentTables.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          tableSelect.appendChild(opt);
+        });
+      } catch (err) {
+        alert('Failed to load tables: ' + err.message);
+      }
+    }
+
+    tableSelect.addEventListener('change', (e) => {
+      currentTableName = e.target.value;
+      if (currentTableName) {
+        loadTableData();
+      } else {
+        tableContainer.innerHTML = '<p style="color: rgba(255,255,255,0.5)">Select a table to view data.</p>';
+      }
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      if (currentTableName) loadTableData();
+    });
+
+    async function loadTableData() {
+      tableContainer.innerHTML = '<p>Loading...</p>';
+      try {
+        const res = await apiRequest(`/api/tables/${currentTableName}`);
+        currentColumns = res.columns;
+        currentRows = res.rows;
+        // Derive the primary key column from information_schema metadata returned by the API.
+        // The GET /api/tables/:table endpoint already includes column_default so we can
+        // identify serial/sequence PKs, but the most reliable approach is to check which
+        // column name the server reports as a PK via its constraint type.  Since the API
+        // does not yet expose that directly, we fall back to the first column that has a
+        // sequence default (covers serial/bigserial PKs) or, failing that, the first column.
+        // For freebie_requests the PK column is 'email' with no sequence default, so we
+        // need the backend to tell us.  We'll ask it via a separate call only if needed;
+        // instead, we piggyback on the fact that the PUT/DELETE routes now resolve the PK
+        // themselves -- all we really need client-side is the value in that column so we
+        // can pass it in the URL.  We detect the PK column by preferring the column whose
+        // name appears first in the constraint list; since we don't have that here, we use
+        // the simplest reliable heuristic: the first column with a NOT NULL constraint that
+        // has a sequence default is a serial PK; if none exists we pick the first NOT NULL
+        // column without a default (covers email-as-PK style).
+        // In practice this covers every table in this project.  A future improvement would
+        // be to have the GET endpoint explicitly return a `primaryKeyColumn` field.
+        const seqCol = currentColumns.find(
+          c => c.column_default && c.column_default.includes('nextval')
+        );
+        const notNullNoDefault = currentColumns.find(
+          c => c.is_nullable === 'NO' && !c.column_default
+        );
+        currentPkColumn = (seqCol || notNullNoDefault || currentColumns[0])?.column_name ?? null;
+        renderTable();
+      } catch (err) {
+        tableContainer.innerHTML = `<p class="error">Failed to load data: ${err.message}</p>`;
+      }
+    }
+
+    function renderTable() {
+      if (!currentColumns.length) {
+        tableContainer.innerHTML = '<p>No columns found.</p>';
+        return;
+      }
+
+      let html = '<div style="overflow-x:auto;"><table><thead><tr>';
+      html += '<th>Actions</th>';
+      currentColumns.forEach(c => {
+        html += `<th>${c.column_name}</th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      currentRows.forEach(row => {
+        const pkVal = currentPkColumn ? row[currentPkColumn] : null;
+        const escapedPk = pkVal != null ? String(pkVal).replace(/'/g, "\\'") : '';
+        html += `<tr><td class="actions">
+          <button onclick="openEditor('${escapedPk}')">Edit</button>
+          <button class="danger" onclick="openDelete('${escapedPk}')">Del</button>
+        </td>`;
+        currentColumns.forEach(c => {
+          let val = row[c.column_name];
+          if (val === null || val === undefined) val = '<em>null</em>';
+          else if (typeof val === 'object') val = JSON.stringify(val);
+          else if (String(val).length > 50) val = String(val).substring(0, 50) + '...';
+          
+          html += `<td>${val}</td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+      tableContainer.innerHTML = html;
+    }
+
+    // ── Editor Modal ──
+    document.getElementById('addBtn').addEventListener('click', () => {
+      if (!currentTableName) {
+        alert('Select a table first.');
+        return;
+      }
+      openEditor(null);
+    });
+
+    function openEditor(id) {
+      editingRowId = id;
+      editorError.classList.add('hidden');
+      editorTitle.textContent = id ? `Edit Row (${currentTableName})` : `Add Row (${currentTableName})`;
+      
+      let rowData = {};
+      if (id) {
+        rowData = currentRows.find(r => currentPkColumn && String(r[currentPkColumn]) === String(id)) || {};
+      }
+
+      editorFields.innerHTML = '';
+      currentColumns.forEach(c => {
+        // Skip auto-generated columns typically
+        if (c.column_name === 'id' && c.column_default && c.column_default.includes('nextval')) return;
+        if (c.column_name === 'created_at' && c.column_default) return;
+
+        const group = document.createElement('div');
+        group.className = 'field-group';
+        
+        const label = document.createElement('label');
+        label.textContent = `${c.column_name} (${c.data_type})` + (c.is_nullable === 'NO' ? ' *' : '');
+        group.appendChild(label);
+
+        let input;
+        const val = rowData[c.column_name];
+
+        if (c.data_type === 'jsonb' || c.data_type === 'text') {
+          input = document.createElement('textarea');
+          input.rows = 5;
+          if (val !== undefined && val !== null) {
+            input.value = typeof val === 'object' ? JSON.stringify(val, null, 2) : val;
+          }
+        } else {
+          input = document.createElement('input');
+          input.type = 'text';
+          if (c.data_type.includes('timestamp')) input.type = 'datetime-local';
+          if (c.data_type === 'boolean') input.type = 'checkbox';
+          
+          if (val !== undefined && val !== null) {
+            if (input.type === 'checkbox') input.checked = val;
+            else if (input.type === 'datetime-local') input.value = String(val).slice(0,16); // rudimentary
+            else input.value = val;
+          }
+        }
+        
+        input.name = c.column_name;
+        if (c.is_nullable === 'NO' && input.type !== 'checkbox' && !c.column_default) {
+          input.required = true;
+        }
+
+        group.appendChild(input);
+        editorFields.appendChild(group);
+      });
+
+      editorModalOverlay.classList.add('open');
+    }
+
+    document.getElementById('closeEditorBtn').addEventListener('click', () => {
+      editorModalOverlay.classList.remove('open');
+    });
+
+    editorForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      editorError.classList.add('hidden');
+      
+      const formData = new FormData(editorForm);
+      const data = {};
+      
+      // Collect values based on fields created
+      const inputs = editorFields.querySelectorAll('input, textarea');
+      for (const input of inputs) {
+        if (input.type === 'checkbox') {
+          data[input.name] = input.checked;
+        } else {
+          let val = input.value;
+          if (val === '') {
+             data[input.name] = null; // Basic assumption
+          } else {
+             // Parse JSON if needed? Rely on PG/backend to cast, but for jsonb we might need to parse to ensure valid JSON
+             const col = currentColumns.find(c => c.column_name === input.name);
+             if (col && col.data_type === 'jsonb') {
+               try { data[input.name] = JSON.parse(val); } 
+               catch(err) { data[input.name] = val; } // let backend fail
+             } else {
+               data[input.name] = val;
+             }
+          }
+        }
+      }
+
+      try {
+        const url = editingRowId 
+          ? `/api/tables/${currentTableName}/${editingRowId}`
+          : `/api/tables/${currentTableName}`;
+        const method = editingRowId ? 'PUT' : 'POST';
+
+        await apiRequest(url, {
+          method,
+          body: JSON.stringify({ data })
+        });
+
+        editorModalOverlay.classList.remove('open');
+        loadTableData();
+      } catch (err) {
+        editorError.textContent = err.message;
+        editorError.classList.remove('hidden');
+      }
+    });
+
+    // ── Delete Modal ──
+    function openDelete(id) {
+      deletingRowId = id;
+      deleteError.classList.add('hidden');
+      deleteTargetName.textContent = currentTableName;
+      deleteConfirmInput.value = '';
+      deleteModalOverlay.classList.add('open');
+      deleteConfirmInput.focus();
+    }
+
+    document.getElementById('closeDeleteBtn').addEventListener('click', () => {
+      deleteModalOverlay.classList.remove('open');
+    });
+
+    deleteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      deleteError.classList.add('hidden');
+      
+      const confirmVal = deleteConfirmInput.value;
+      
+      try {
+        await apiRequest(`/api/tables/${currentTableName}/${deletingRowId}`, {
+          method: 'DELETE',
+          body: JSON.stringify({ confirmTableName: confirmVal })
+        });
+        
+        deleteModalOverlay.classList.remove('open');
+        loadTableData();
+      } catch (err) {
+        deleteError.textContent = err.message;
+        deleteError.classList.remove('hidden');
+      }
+    });
+
+    // Attempt to load tables on start; if 401, we will naturally show auth
+    loadTables().catch(() => showAuth());
+  </script>
+</body>
+</html>

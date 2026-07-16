@@ -49,6 +49,8 @@ export function Footer() {
             items={[
               { label: "Case Studies", to: "/case-studies" },
               { label: "Blog", to: "/blog" },
+              { label: "Savings Calculator", to: "/savings-calculator" },
+              { label: "Free Guide", to: "/automation-playbook" },
             ]}
           />
           <FooterCol
