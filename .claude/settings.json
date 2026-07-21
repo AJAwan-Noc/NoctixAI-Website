@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /d/NoctixAI-Website status --short)",
+      "Bash(git -C /d/NoctixAI-Website remote -v)"
+    ]
+  }
+}
