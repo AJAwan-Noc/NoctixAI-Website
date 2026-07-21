@@ -83,6 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { name: "author", content: "Noctix AI" },
       { name: "theme-color", content: "#000000" },
+      { name: "facebook-domain-verification", content: "lty4rxohm34kzo9h8wy25hs21n1w11" },
       { property: "og:title", content: "Noctix AI — Let Robots Do The Boring Stuff" },
       {
         property: "og:description",
