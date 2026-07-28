@@ -16,6 +16,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.disable("x-powered-by");
+app.set("trust proxy", 1);
+
+const clientKey = (req) =>
+  req.get("cf-connecting-ip") || req.ip || req.socket.remoteAddress || "unknown";
 
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
@@ -72,9 +76,10 @@ app.use(express.json({ limit: "100kb" }));
 
 const formRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: clientKey,
   message: safeValidationResponse,
 });
 
@@ -203,6 +208,7 @@ app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
         'x-noctix-secret': process.env.N8N_WEBHOOK_SECRET,
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!n8nResponse.ok) {
@@ -220,6 +226,7 @@ app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
       show_booking: true,
     });
   } catch (error) {
+    if (error.name === 'TimeoutError') console.error('n8n webhook timed out');
     return res.status(500).json(safeErrorResponse);
   }
 });
@@ -229,6 +236,7 @@ const freebieRateLimiter = rateLimit({
   limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: clientKey,
   message: safeValidationResponse,
 });
 
@@ -271,6 +279,7 @@ app.post("/api/freebie-request", freebieRateLimiter, async (req, res) => {
         "x-noctix-secret": process.env.FREEBIE_WEBHOOK_SECRET,
       },
       body: JSON.stringify({ email }),
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!n8nResponse.ok) {
@@ -292,6 +301,7 @@ app.post("/api/freebie-request", freebieRateLimiter, async (req, res) => {
       message: limited ? "Request limit reached" : "Guide is on its way",
     });
   } catch (error) {
+    if (error.name === 'TimeoutError') console.error('n8n webhook timed out');
     return res.status(500).json(safeErrorResponse);
   }
 });
@@ -303,7 +313,7 @@ app.post("/api/freebie-request", freebieRateLimiter, async (req, res) => {
 //  2. TOTP (speakeasy) second factor
 //  3. Signed JWT session (httpOnly, secure, sameSite=strict, 45min expiry)
 //  4. CSRF token on every mutating request
-//  5. Escalating login rate limiting
+//  5. Login rate limiting
 //  6. All table/column identifiers validated against information_schema
 //  7. Full audit logging
 // ──────────────────────────────────────────────────────────────────────────────
@@ -322,20 +332,14 @@ if (process.env.NOCTIX_CONTENT_DB_URL) {
 const adminRouter = express.Router();
 adminRouter.use(cookieParser());
 
-// Login rate limiter: 5 attempts / 15 min, escalating
-const loginFailCounts = new Map(); // ip -> { count, windowStart }
+// Login rate limiter: 5 attempts / 15 min
 const adminLoginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.ip,
+  keyGenerator: clientKey,
   handler: (req, res) => {
-    // Escalate: double the lockout on repeated blocks
-    const key = req.ip;
-    const record = loginFailCounts.get(key) || { count: 0, windowStart: Date.now() };
-    record.count += 1;
-    loginFailCounts.set(key, record);
     res.status(429).json({ success: false, message: "Too many attempts. Try again later." });
   },
 });

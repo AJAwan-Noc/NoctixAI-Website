@@ -1,4 +1,23 @@
 User-agent: *
 Allow: /
+Disallow: /blog/preview/
+Disallow: /*?audience=
+
+# AI crawlers — allowed. These cite sources or drive referral traffic.
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Bulk training corpus, no citation or referral path.
+User-agent: CCBot
+Disallow: /
 
 Sitemap: https://noctix.app/sitemap.xml
