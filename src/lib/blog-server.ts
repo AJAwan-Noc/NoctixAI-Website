@@ -20,6 +20,8 @@ export type BlogPost = BlogPostSummary & {
   authorBio: string;
   authorLinkedin: string | null;
   publishedAt: string | null;
+  updatedAt: string | null;
+  ogImagePath: string | null;
 };
 
 export type PaginatedPosts = {
@@ -72,7 +74,8 @@ export const getPostBySlug = createServerFn({ method: "GET" })
          slug, title, description, keyword, read_time as "readTime",
          body, meta_title as "metaTitle", meta_description as "metaDescription",
          faq, author_name as "authorName", author_bio as "authorBio",
-         author_linkedin as "authorLinkedin", published_at as "publishedAt"
+         author_linkedin as "authorLinkedin", published_at as "publishedAt",
+         updated_at as "updatedAt", og_image_path as "ogImagePath"
        from blog_posts
        where slug = $1 and status = 'published'
        limit 1`,
@@ -98,7 +101,8 @@ export const getDraftPreview = createServerFn({ method: "GET" })
          slug, title, description, keyword, read_time as "readTime",
          body, meta_title as "metaTitle", meta_description as "metaDescription",
          faq, author_name as "authorName", author_bio as "authorBio",
-         author_linkedin as "authorLinkedin", published_at as "publishedAt"
+         author_linkedin as "authorLinkedin", published_at as "publishedAt",
+         og_image_path as "ogImagePath"
        from blog_posts
        where slug = $1 and approval_token = $2 and status = 'draft'
        limit 1`,

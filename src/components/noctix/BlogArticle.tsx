@@ -2,25 +2,53 @@ import { Link } from "@tanstack/react-router";
 import { AuroraText } from "@/components/ui/aurora-text";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { Markdown } from "@/lib/markdown";
+import { JsonLd } from "@/lib/json-ld";
+import { SITE, ogImage } from "@/lib/seo";
+import { breadcrumbSchema } from "@/lib/schema";
 import type { BlogPost } from "@/lib/blog-server";
 
-export function BlogArticle({
-  post,
-  isPreview = false,
-}: {
-  post: BlogPost;
-  isPreview?: boolean;
-}) {
+const FAQ_HEADING_PATTERN = /^#{1,3}\s*FAQ/i;
+
+function stripTrailingFaq(body: string): string {
+  const lines = body.split("\n");
+  let cutIndex = -1;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i].trim();
+    if (FAQ_HEADING_PATTERN.test(line) || line === "**FAQ**") {
+      cutIndex = i;
+      break;
+    }
+  }
+  return cutIndex === -1 ? body : lines.slice(0, cutIndex).join("\n").trimEnd();
+}
+
+export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPreview?: boolean }) {
+  const body = post.faq?.length ? stripTrailingFaq(post.body) : post.body;
+
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "BlogPosting",
+        "@id": `${SITE.url}/blog/${post.slug}#article`,
         headline: post.title,
         description: post.description,
-        author: { "@type": "Person", name: post.authorName },
+        image: ogImage(post.ogImagePath),
+        author: {
+          "@type": "Person",
+          name: post.authorName,
+          ...(post.authorLinkedin ? { url: post.authorLinkedin } : {}),
+        },
+        publisher: { "@id": `${SITE.url}/#organization` },
         ...(post.publishedAt ? { datePublished: post.publishedAt } : {}),
+        dateModified: post.updatedAt ?? post.publishedAt,
+        mainEntityOfPage: { "@type": "WebPage", "@id": `${SITE.url}/blog/${post.slug}` },
       },
+      breadcrumbSchema([
+        { name: "Home", path: "/" },
+        { name: "Blog", path: "/blog" },
+        { name: post.title, path: `/blog/${post.slug}` },
+      ]),
       ...(post.faq?.length
         ? [
             {
@@ -38,11 +66,7 @@ export function BlogArticle({
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-20">
-      {/* eslint-disable-next-line react/no-danger */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
+      <JsonLd data={schema} />
 
       {isPreview && (
         <div className="mb-8 border border-[var(--lime)]/40 bg-[var(--lime)]/10 px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--lime)]">
@@ -67,7 +91,7 @@ export function BlogArticle({
       <p className="mt-6 text-lg text-foreground/65">{post.description}</p>
 
       <div className="mt-12">
-        <Markdown>{post.body}</Markdown>
+        <Markdown>{body}</Markdown>
       </div>
 
       {post.authorName && (
