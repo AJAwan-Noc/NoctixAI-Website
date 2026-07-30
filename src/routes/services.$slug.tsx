@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { z } from "zod";
 import { motion } from "framer-motion";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { SimpleLeadForm } from "@/components/noctix/SimpleLeadForm";
 import { AuroraText } from "@/components/ui/aurora-text";
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/services/$slug")({
     if (!page) throw notFound();
     return page;
   },
-  head: ({ loaderData }) => ({
+  head: ({ loaderData, match }) => ({
     meta: loaderData
       ? [
           { title: `${loaderData.serviceName} — Noctix AI` },
@@ -33,8 +34,16 @@ export const Route = createFileRoute("/services/$slug")({
           },
           { property: "og:title", content: `${loaderData.serviceName} — Noctix AI` },
           { property: "og:description", content: loaderData.subheadline },
+          { property: "og:url", content: canonical("/services/" + loaderData.serviceSlug) },
+          { property: "og:image", content: ogImage() },
+          // Audience-targeted variants share content with the bare service page —
+          // keep them out of the index instead of competing with the canonical.
+          ...(match.search.audience ? [{ name: "robots", content: "noindex, follow" }] : []),
         ]
       : [{ title: "Service — Noctix AI" }],
+    links: loaderData
+      ? [{ rel: "canonical", href: canonical("/services/" + loaderData.serviceSlug) }]
+      : undefined,
   }),
   component: ServiceLandingPage,
   notFoundComponent: () => (
@@ -93,9 +102,7 @@ function ServiceLandingPage() {
           <h1 className="font-display text-[clamp(2.2rem,6vw,4.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
             <AuroraText>{page.headline}</AuroraText>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-foreground/65">
-            {page.subheadline}
-          </p>
+          <p className="mt-6 max-w-2xl text-lg text-foreground/65">{page.subheadline}</p>
           <a
             href="#get-started"
             className="mt-8 inline-flex items-center gap-2 bg-[var(--lime)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground transition-colors hover:bg-[var(--lime-glow)]"
@@ -117,9 +124,7 @@ function ServiceLandingPage() {
               className="flex items-start gap-4"
             >
               <span className="mt-1 h-2 w-2 shrink-0 bg-[var(--lime)]" />
-              <p className="text-sm leading-relaxed text-foreground/65">
-                {page.proofText}
-              </p>
+              <p className="text-sm leading-relaxed text-foreground/65">{page.proofText}</p>
             </motion.div>
           </div>
         </section>
@@ -136,9 +141,7 @@ function ServiceLandingPage() {
           <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
             The problem
           </div>
-          <p className="max-w-3xl text-lg leading-relaxed text-foreground/70">
-            {page.problemText}
-          </p>
+          <p className="max-w-3xl text-lg leading-relaxed text-foreground/70">{page.problemText}</p>
         </motion.div>
       </section>
 
@@ -215,10 +218,7 @@ function ServiceLandingPage() {
       )}
 
       {/* 7. Final CTA + form */}
-      <section
-        id="get-started"
-        className="border-t border-foreground/10"
-      >
+      <section id="get-started" className="border-t border-foreground/10">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
           <div className="grid gap-12 md:grid-cols-[1fr_minmax(300px,420px)]">
             <motion.div
@@ -234,8 +234,8 @@ function ServiceLandingPage() {
                 Ready to see how this works for your business?
               </h2>
               <p className="mt-4 max-w-md text-foreground/60">
-                Fill in the short form. We'll review your situation and come back with
-                a concrete recommendation — not a sales pitch.
+                Fill in the short form. We'll review your situation and come back with a concrete
+                recommendation — not a sales pitch.
               </p>
             </motion.div>
             <div className="relative overflow-hidden border border-foreground/10 bg-background/40 p-6 sm:p-8">

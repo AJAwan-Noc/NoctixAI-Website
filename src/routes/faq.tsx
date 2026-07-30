@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { AuroraText } from "@/components/ui/aurora-text";
 import { BorderBeam } from "@/components/ui/border-beam";
@@ -25,7 +26,10 @@ export const Route = createFileRoute("/faq")({
         property: "og:description",
         content: "Common questions about Noctix AI automations, AI agents, and business systems.",
       },
+      { property: "og:url", content: canonical("/faq") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/faq") }],
   }),
   component: FAQPage,
 });

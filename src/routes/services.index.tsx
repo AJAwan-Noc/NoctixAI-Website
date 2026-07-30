@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { SplineSceneSection } from "@/components/noctix/SplineSceneSection";
 import { Services as ServicesGrid } from "@/components/noctix/Services";
@@ -23,7 +24,10 @@ export const Route = createFileRoute("/services/")({
         property: "og:description",
         content: "AI systems that remove manual work from your operations.",
       },
+      { property: "og:url", content: canonical("/services") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/services") }],
   }),
   component: ServicesPage,
 });

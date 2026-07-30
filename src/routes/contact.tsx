@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { WebsiteLeadForm } from "@/components/noctix/WebsiteLeadForm";
 import { Particles } from "@/components/ui/particles";
@@ -18,7 +19,10 @@ export const Route = createFileRoute("/contact")({
       },
       { property: "og:title", content: "Contact - Noctix AI" },
       { property: "og:description", content: "Book a free automation audit." },
+      { property: "og:url", content: canonical("/contact") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/contact") }],
   }),
   component: ContactPage,
 });

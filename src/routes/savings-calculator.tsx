@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { AuroraText } from "@/components/ui/aurora-text";
 import { BorderBeam } from "@/components/ui/border-beam";
@@ -14,7 +15,10 @@ export const Route = createFileRoute("/savings-calculator")({
         content:
           "See how many hours and dollars your business could save by automating repetitive manual work. Free, instant estimate, no email required to see your number.",
       },
+      { property: "og:url", content: canonical("/savings-calculator") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/savings-calculator") }],
   }),
   component: SavingsCalculatorPage,
 });
@@ -156,8 +160,8 @@ function SavingsCalculatorPage() {
                 </div>
               </div>
               <p className="mt-4 text-xs text-foreground/45">
-                Estimate based on typical results across automation implementations.
-                Actual savings depend on your specific processes.
+                Estimate based on typical results across automation implementations. Actual savings
+                depend on your specific processes.
               </p>
 
               <div className="mt-10 border-t border-foreground/10 pt-10">
@@ -165,8 +169,8 @@ function SavingsCalculatorPage() {
                   Want the full breakdown?
                 </div>
                 <p className="mt-3 mb-6 text-sm text-foreground/60">
-                  Leave your details and we'll follow up with a detailed breakdown and a short
-                  plan for where to start.
+                  Leave your details and we'll follow up with a detailed breakdown and a short plan
+                  for where to start.
                 </p>
                 <SimpleLeadForm
                   serviceNeeded="Savings Calculator Lead"

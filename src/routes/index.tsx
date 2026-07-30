@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SmoothScroll } from "@/components/noctix/SmoothScroll";
 import { SiteBackground } from "@/components/noctix/SiteBackground";
 import { Loader } from "@/components/noctix/Loader";
@@ -27,7 +28,10 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "AI agents, automations, and business systems built for operators.",
       },
+      { property: "og:url", content: canonical("/") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/") }],
   }),
   component: Index,
 });

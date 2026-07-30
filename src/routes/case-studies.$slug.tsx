@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { getCaseStudy } from "@/content/caseStudies";
 import { AuroraText } from "@/components/ui/aurora-text";
@@ -18,8 +19,13 @@ export const Route = createFileRoute("/case-studies/$slug")({
           { name: "description", content: loaderData.summary },
           { property: "og:title", content: `${loaderData.title} — Noctix AI` },
           { property: "og:description", content: loaderData.summary },
+          { property: "og:url", content: canonical("/case-studies/" + loaderData.slug) },
+          { property: "og:image", content: ogImage() },
         ]
       : [{ title: "Case Study — Noctix AI" }],
+    links: loaderData
+      ? [{ rel: "canonical", href: canonical("/case-studies/" + loaderData.slug) }]
+      : undefined,
   }),
   component: CaseStudyPage,
   notFoundComponent: () => (

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { AuroraText } from "@/components/ui/aurora-text";
 import { BorderBeam } from "@/components/ui/border-beam";
@@ -13,7 +14,10 @@ export const Route = createFileRoute("/automation-playbook")({
         content:
           "12 real automation workflows worth building, free. Get the guide sent straight to your inbox.",
       },
+      { property: "og:url", content: canonical("/automation-playbook") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/automation-playbook") }],
   }),
   component: AutomationPlaybookPage,
 });

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 
 export const Route = createFileRoute("/terms")({
@@ -8,7 +9,10 @@ export const Route = createFileRoute("/terms")({
       { name: "description", content: "Terms governing your use of the Noctix AI website." },
       { property: "og:title", content: "Terms & Conditions — Noctix AI" },
       { property: "og:description", content: "Terms governing use of the Noctix AI website." },
+      { property: "og:url", content: canonical("/terms") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/terms") }],
   }),
   component: TermsPage,
 });

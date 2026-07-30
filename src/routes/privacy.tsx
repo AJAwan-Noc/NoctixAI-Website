@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 
 export const Route = createFileRoute("/privacy")({
@@ -11,7 +12,10 @@ export const Route = createFileRoute("/privacy")({
       },
       { property: "og:title", content: "Privacy Policy — Noctix AI" },
       { property: "og:description", content: "How Noctix AI handles your information." },
+      { property: "og:url", content: canonical("/privacy") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/privacy") }],
   }),
   component: PrivacyPage,
 });

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { BlogArticle } from "@/components/noctix/BlogArticle";
 import { getPostBySlug } from "@/lib/blog-server";
@@ -19,8 +20,13 @@ export const Route = createFileRoute("/blog/$slug")({
           },
           { property: "og:title", content: loaderData.title },
           { property: "og:description", content: loaderData.description },
+          { property: "og:url", content: canonical("/blog/" + loaderData.slug) },
+          { property: "og:image", content: ogImage() },
         ]
       : [{ title: "Blog — Noctix AI" }],
+    links: loaderData
+      ? [{ rel: "canonical", href: canonical("/blog/" + loaderData.slug) }]
+      : undefined,
   }),
   component: BlogPostPage,
   notFoundComponent: () => (

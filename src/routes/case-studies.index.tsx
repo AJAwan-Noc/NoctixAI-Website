@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { caseStudies } from "@/content/caseStudies";
 import { MagicCard } from "@/components/ui/magic-card";
@@ -16,7 +17,10 @@ export const Route = createFileRoute("/case-studies/")({
       },
       { property: "og:title", content: "Case Studies — Noctix AI" },
       { property: "og:description", content: "Selected work from Noctix AI." },
+      { property: "og:url", content: canonical("/case-studies") },
+      { property: "og:image", content: ogImage() },
     ],
+    links: [{ rel: "canonical", href: canonical("/case-studies") }],
   }),
   component: CaseStudiesIndex,
 });

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { motion } from "framer-motion";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { getPublishedPosts } from "@/lib/blog-server";
 import { MagicCard } from "@/components/ui/magic-card";
@@ -24,7 +25,12 @@ export const Route = createFileRoute("/blog/")({
       },
       { property: "og:title", content: "Blog — Noctix AI" },
       { property: "og:description", content: "Field notes from Noctix AI." },
+      { property: "og:url", content: canonical("/blog") },
+      { property: "og:image", content: ogImage() },
     ],
+    // Always canonicalizes to /blog with no page param — paginated views are
+    // variants of the same listing, not distinct pages worth indexing.
+    links: [{ rel: "canonical", href: canonical("/blog") }],
   }),
   component: BlogIndex,
 });
