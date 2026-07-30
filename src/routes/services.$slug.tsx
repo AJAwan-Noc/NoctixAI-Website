@@ -244,7 +244,7 @@ function ServiceLandingPage() {
                 serviceNeeded={page.serviceName}
                 submitLabel="Request a free audit"
                 successMessage="We'll review your details and be in touch within 24 hours."
-                fields={["company_name", "message"]}
+                fields={["message"]}
               />
             </div>
           </div>

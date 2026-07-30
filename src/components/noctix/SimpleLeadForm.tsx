@@ -5,13 +5,13 @@ import { ShimmerButton } from "@/components/ui/shimmer-button";
 const WEBSITE_FORM_ENDPOINT = "https://api.noctix.app/api/website-form-filled";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type OptionalField = "company_name" | "website" | "message";
+type OptionalField = "company_name" | "website" | "message" | "phone";
 
 type SimpleLeadFormProps = {
   serviceNeeded: string;
   submitLabel?: string;
   successMessage?: string;
-  /** Additional optional fields beyond the default name / email / phone. */
+  /** Additional optional fields beyond the default name / email. */
   fields?: OptionalField[];
 };
 
@@ -26,7 +26,8 @@ function getBrowserTimezone() {
 const FIELD_META: Record<OptionalField, { type: string; placeholder: string }> = {
   company_name: { type: "text", placeholder: "Company name (optional)" },
   website: { type: "url", placeholder: "Website (optional)" },
-  message: { type: "textarea", placeholder: "Anything we should know? (optional)" },
+  message: { type: "textarea", placeholder: "What are you trying to fix?" },
+  phone: { type: "tel", placeholder: "Phone (optional)" },
 };
 
 export function SimpleLeadForm({
@@ -37,7 +38,6 @@ export function SimpleLeadForm({
 }: SimpleLeadFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [extras, setExtras] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +65,7 @@ export function SimpleLeadForm({
     const payload = {
       name: name.trim(),
       email: email.trim(),
-      phone: phone.trim(),
+      phone: (extras.phone ?? "").trim(),
       company_name: (extras.company_name ?? "").trim(),
       website: (extras.website ?? "").trim(),
       service_needed: serviceNeeded,
@@ -121,13 +121,6 @@ export function SimpleLeadForm({
         onChange={(e) => setEmail(e.target.value)}
         className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
       />
-      <input
-        type="tel"
-        placeholder="Phone (optional)"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
-      />
       {fields.map((key) => {
         const meta = FIELD_META[key];
         if (meta.type === "textarea") {
@@ -164,9 +157,29 @@ export function SimpleLeadForm({
         </ShimmerButton>
       </MagneticButton>
       {state === "error" && (
-        <p role="alert" className="text-sm text-red-300">
-          Something went wrong. Please try again.
-        </p>
+        <div role="alert" className="space-y-2 text-sm text-red-300">
+          <p>
+            Something went wrong on our end. You can{" "}
+            <a
+              href={`mailto:hello@noctix.app?subject=${encodeURIComponent(
+                "Enquiry: " + serviceNeeded
+              )}&body=${encodeURIComponent(
+                `Name: ${name}\nEmail: ${email}\n\n${extras.message ?? ""}`
+              )}`}
+              className="underline underline-offset-2"
+            >
+              email us directly
+            </a>{" "}
+            instead — we've filled in your details.
+          </p>
+          <button
+            type="button"
+            onClick={() => setState("idle")}
+            className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/60 underline underline-offset-2"
+          >
+            Try again
+          </button>
+        </div>
       )}
     </form>
   );

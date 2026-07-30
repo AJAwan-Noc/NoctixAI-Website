@@ -6,7 +6,6 @@ const WEBSITE_FORM_ENDPOINT = "https://api.noctix.app/api/website-form-filled";
 
 const SUCCESS_MESSAGE =
   "Thanks — your details have been submitted. We’ll review them and get back to you shortly.";
-const ERROR_MESSAGE = "Something went wrong. Please try again.";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type WebsiteFormPayload = {
@@ -123,6 +122,7 @@ export function WebsiteLeadForm({
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errors, setErrors] = useState<FormErrors>({});
   const [timezone, setTimezone] = useState("");
+  const [lastPayload, setLastPayload] = useState<WebsiteFormPayload | null>(null);
   const isSubmitting = submitState === "submitting";
   const isSuccess = submitState === "success";
 
@@ -157,6 +157,7 @@ export function WebsiteLeadForm({
     }
 
     setSubmitState("submitting");
+    setLastPayload(payload);
 
     try {
       const response = await fetch(WEBSITE_FORM_ENDPOINT, {
@@ -261,9 +262,29 @@ export function WebsiteLeadForm({
 
           <div className="flex flex-col items-start gap-4 sm:col-span-2">
             {submitState === "error" ? (
-              <p role="alert" className="text-sm text-red-300">
-                {ERROR_MESSAGE}
-              </p>
+              <div role="alert" className="space-y-2 text-sm text-red-300">
+                <p>
+                  Something went wrong on our end. You can{" "}
+                  <a
+                    href={`mailto:hello@noctix.app?subject=${encodeURIComponent(
+                      "Enquiry: " + (lastPayload?.service_needed ?? "")
+                    )}&body=${encodeURIComponent(
+                      `Name: ${lastPayload?.name ?? ""}\nEmail: ${lastPayload?.email ?? ""}\n\n${lastPayload?.message ?? ""}`
+                    )}`}
+                    className="underline underline-offset-2"
+                  >
+                    email us directly
+                  </a>{" "}
+                  instead — we've filled in your details.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSubmitState("idle")}
+                  className="font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/60 underline underline-offset-2"
+                >
+                  Try again
+                </button>
+              </div>
             ) : null}
             {isSubmitting ? (
               <p
