@@ -82,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Noctix AI builds AI voice agents, CRM automations, workflows, and business systems that remove manual work from your operations.",
       },
       { name: "author", content: "Noctix AI" },
-      { name: "theme-color", content: "#050810" },
+      { name: "theme-color", content: "#000000" },
       { name: "facebook-domain-verification", content: "lty4rxohm34kzo9h8wy25hs21n1w11" },
       { property: "og:title", content: "Noctix AI — Let Robots Do The Boring Stuff" },
       {

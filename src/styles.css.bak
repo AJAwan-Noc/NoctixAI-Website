@@ -69,11 +69,11 @@
 
 .dark {
   /* Dark theme — deep charcoal with the same royal-blue brand accent */
-  --background: oklch(0.135 0.019 264);
+  --background: oklch(0.045 0.012 264);
   --foreground: oklch(0.97 0.005 250);
   --card: oklch(0.085 0.02 264);
   --card-foreground: oklch(0.97 0.005 250);
-  --popover: oklch(0.085 0.02 264);
+  --popover: oklch(0.085 0.02 264); 
   --popover-foreground: oklch(0.97 0.005 250);
   --primary: oklch(0.55 0.27 268);
   --primary-foreground: oklch(0.98 0.005 250);
