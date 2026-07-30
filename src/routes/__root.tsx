@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { ThemeProvider, noFlashScript } from "@/components/noctix/ThemeProvider";
 import { CookieConsent } from "@/components/noctix/CookieConsent";
 import { SITE, canonical, ogImage } from "@/lib/seo";
+import { JsonLd } from "@/lib/json-ld";
+import { organizationSchema, websiteSchema } from "@/lib/schema";
 
 function NotFoundComponent() {
   return (
@@ -143,6 +145,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": [organizationSchema(), websiteSchema()],
+        }}
+      />
       <ThemeProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
