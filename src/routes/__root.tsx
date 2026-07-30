@@ -12,6 +12,7 @@ import type { ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { ThemeProvider, noFlashScript } from "@/components/noctix/ThemeProvider";
 import { CookieConsent } from "@/components/noctix/CookieConsent";
+import { SITE, canonical, ogImage } from "@/lib/seo";
 
 function NotFoundComponent() {
   return (
@@ -82,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Noctix AI builds AI voice agents, CRM automations, workflows, and business systems that remove manual work from your operations.",
       },
       { name: "author", content: "Noctix AI" },
-      { name: "theme-color", content: "#000000" },
+      { name: "theme-color", content: SITE.themeColor },
       { name: "facebook-domain-verification", content: "lty4rxohm34kzo9h8wy25hs21n1w11" },
       { property: "og:title", content: "Noctix AI — Let Robots Do The Boring Stuff" },
       {
@@ -90,13 +91,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "AI agents, automations, and business systems built for operators.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: SITE.url },
+      { property: "og:site_name", content: SITE.name },
+      { property: "og:locale", content: "en_GB" },
+      { property: "og:image", content: ogImage() },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: SITE.name + " — " + SITE.tagline },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Noctix AI" },
       { name: "twitter:description", content: "Let Robots Do The Boring Stuff." },
+      { name: "twitter:image", content: ogImage() },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "canonical", href: SITE.url + "/" },
+      { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
+      { rel: "icon", type: "image/png", href: "/icons/favicon-32.png", sizes: "32x32" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
