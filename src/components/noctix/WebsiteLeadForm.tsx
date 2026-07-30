@@ -122,7 +122,6 @@ export function WebsiteLeadForm({
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errors, setErrors] = useState<FormErrors>({});
   const [timezone, setTimezone] = useState("");
-  const [lastPayload, setLastPayload] = useState<WebsiteFormPayload | null>(null);
   const isSubmitting = submitState === "submitting";
   const isSuccess = submitState === "success";
 
@@ -157,7 +156,6 @@ export function WebsiteLeadForm({
     }
 
     setSubmitState("submitting");
-    setLastPayload(payload);
 
     try {
       const response = await fetch(WEBSITE_FORM_ENDPOINT, {
@@ -264,18 +262,11 @@ export function WebsiteLeadForm({
             {submitState === "error" ? (
               <div role="alert" className="space-y-2 text-sm text-red-300">
                 <p>
-                  Something went wrong on our end. You can{" "}
-                  <a
-                    href={`mailto:hello@noctix.app?subject=${encodeURIComponent(
-                      "Enquiry: " + (lastPayload?.service_needed ?? "")
-                    )}&body=${encodeURIComponent(
-                      `Name: ${lastPayload?.name ?? ""}\nEmail: ${lastPayload?.email ?? ""}\n\n${lastPayload?.message ?? ""}`
-                    )}`}
-                    className="underline underline-offset-2"
-                  >
-                    email us directly
+                  Something went wrong on our end. Please email us directly at{" "}
+                  <a href="mailto:hello@noctix.app" className="underline underline-offset-2">
+                    hello@noctix.app
                   </a>{" "}
-                  instead — we've filled in your details.
+                  and we'll get back to you shortly.
                 </p>
                 <button
                   type="button"
