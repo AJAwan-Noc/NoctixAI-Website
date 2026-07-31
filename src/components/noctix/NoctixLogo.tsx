@@ -1,7 +1,5 @@
 import { cn } from "@/lib/utils";
-import darkLogoUrl from "@/assets/logo/noctix-logo-full-transparent.png";
-import lightLogoUrl from "@/assets/logo/noctix-logo-light-transparent.png";
-import markUrl from "@/assets/logo/noctix-mark-transparent.png";
+import { NoctixLogoMark } from "@/components/noctix/NoctixLogoMark";
 
 type Variant = "full" | "mark" | "wordmark-text";
 
@@ -13,30 +11,24 @@ interface NoctixLogoProps {
 }
 
 /**
- * Noctix AI logo. Renders the original brand lockup. Wordmark color flips
- * for light/dark mode using two CDN assets stacked behind a CSS class swap —
- * SSR-safe (no useTheme dependency, no hydration flash).
+ * Noctix AI logo. Renders the brand lockup as inline SVG — no raster
+ * assets, no theme-variant swap, currentColor inherits the surrounding
+ * text color so it's correct in both themes with zero extra downloads.
  *
  * Variants:
- *  - "full"          → full "Noctix AI" lockup (default, used in nav/footer)
+ *  - "full"          → mark + "Noctix AI" wordmark, one inline SVG (default, used in nav/footer)
  *  - "mark"          → standalone n-mark only (favicons, badges)
  *  - "wordmark-text" → mark + "Noctix AI" rendered as text
  */
 export function NoctixLogo({ className = "h-7 w-auto", variant = "full" }: NoctixLogoProps) {
   if (variant === "mark") {
-    return (
-      <img
-        src={markUrl}
-        alt="Noctix AI"
-        className={cn("h-full w-auto object-contain", className)}
-      />
-    );
+    return <NoctixLogoMark titled className={cn("h-full w-auto", className)} />;
   }
 
   if (variant === "wordmark-text") {
     return (
       <div className={cn("inline-flex items-center gap-3", className)}>
-        <img src={markUrl} alt="" className="h-full w-auto object-contain" />
+        <NoctixLogoMark className="h-full w-auto" />
         <span className="font-display text-[1.15em] font-semibold tracking-tight leading-none">
           Noctix <span className="text-[var(--lime)]">AI</span>
         </span>
@@ -44,20 +36,28 @@ export function NoctixLogo({ className = "h-7 w-auto", variant = "full" }: Nocti
     );
   }
 
-  // "full" — stack both logo variants and toggle visibility based on `.dark` class on <html>.
+  // "full" — one inline SVG: the mark nested alongside an SVG <text> wordmark.
+  // currentColor + var(--lime) inherit/override exactly like the mark does on its own.
   return (
-    <span className={cn("relative inline-block h-7 w-auto", className)}>
-      <img
-        src={lightLogoUrl}
-        alt="Noctix AI"
-        className="h-full w-auto object-contain dark:hidden"
-      />
-      <img
-        src={darkLogoUrl}
-        alt=""
-        aria-hidden="true"
-        className="hidden h-full w-auto object-contain dark:block"
-      />
-    </span>
+    <svg
+      viewBox="0 0 680 180"
+      role="img"
+      fill="currentColor"
+      className={cn("h-7 w-auto", className)}
+    >
+      <title>Noctix AI</title>
+      <NoctixLogoMark x={0} y={1} width={178} height={178} />
+      <text
+        x={210}
+        y={90}
+        dominantBaseline="central"
+        textLength={450}
+        lengthAdjust="spacingAndGlyphs"
+        fontSize={128}
+        className="font-display font-semibold"
+      >
+        Noctix <tspan fill="var(--lime)">AI</tspan>
+      </text>
+    </svg>
   );
 }
