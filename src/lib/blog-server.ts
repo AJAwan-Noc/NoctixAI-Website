@@ -37,7 +37,7 @@ const POSTS_PER_PAGE = 12;
 export const getPublishedPosts = createServerFn({ method: "GET" })
   .validator((page: unknown) => {
     const parsed = typeof page === "number" ? page : Number(page);
-    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 1;
+    return Number.isFinite(parsed) && parsed > 0 ? Math.min(500, Math.floor(parsed)) : 1;
   })
   .handler(async ({ data: page }): Promise<PaginatedPosts> => {
     const offset = (page - 1) * POSTS_PER_PAGE;

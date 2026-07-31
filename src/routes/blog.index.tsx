@@ -8,12 +8,12 @@ import { MagicCard } from "@/components/ui/magic-card";
 import { AuroraText } from "@/components/ui/aurora-text";
 
 const searchSchema = z.object({
-  page: z.coerce.number().int().positive().catch(1),
+  page: z.coerce.number().int().positive().max(500).optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/blog/")({
   validateSearch: searchSchema,
-  loaderDeps: ({ search }) => ({ page: search.page }),
+  loaderDeps: ({ search }) => ({ page: search.page ?? 1 }),
   loader: ({ deps }) => getPublishedPosts({ data: deps.page }),
   head: () => ({
     meta: [
@@ -90,7 +90,7 @@ function BlogIndex() {
             {page > 1 ? (
               <Link
                 to="/blog"
-                search={{ page: page - 1 }}
+                search={page - 1 > 1 ? { page: page - 1 } : {}}
                 className="border border-foreground/20 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/70 transition-colors hover:border-[var(--lime)] hover:text-[var(--lime)]"
               >
                 ← Previous
