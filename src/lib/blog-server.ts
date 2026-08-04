@@ -31,6 +31,8 @@ export type PaginatedPosts = {
   totalCount: number;
 };
 
+type PostRow = BlogPostSummary & { totalCount: string };
+
 const POSTS_PER_PAGE = 12;
 
 // Used on /blog — published posts only, newest first, paginated.
@@ -51,7 +53,7 @@ export const getPublishedPosts = createServerFn({ method: "GET" })
       [POSTS_PER_PAGE, offset],
     );
     const totalCount = rows[0] ? Number(rows[0].totalCount) : 0;
-    const posts = rows.map(({ totalCount: _tc, ...rest }: any) => rest);
+    const posts = rows.map(({ totalCount: _tc, ...rest }: PostRow) => rest);
     return {
       posts,
       page,

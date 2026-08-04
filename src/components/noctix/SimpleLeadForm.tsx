@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 
@@ -23,11 +23,15 @@ function getBrowserTimezone() {
   }
 }
 
-const FIELD_META: Record<OptionalField, { type: string; placeholder: string }> = {
-  company_name: { type: "text", placeholder: "Company name (optional)" },
-  website: { type: "url", placeholder: "Website (optional)" },
-  message: { type: "textarea", placeholder: "What are you trying to fix?" },
-  phone: { type: "tel", placeholder: "Phone (optional)" },
+const FIELD_META: Record<OptionalField, { type: string; label: string; placeholder: string }> = {
+  company_name: { type: "text", label: "Company name", placeholder: "Company name (optional)" },
+  website: { type: "url", label: "Website", placeholder: "Website (optional)" },
+  message: {
+    type: "textarea",
+    label: "What are you trying to fix?",
+    placeholder: "What are you trying to fix?",
+  },
+  phone: { type: "tel", label: "Phone", placeholder: "Phone (optional)" },
 };
 
 export function SimpleLeadForm({
@@ -36,11 +40,14 @@ export function SimpleLeadForm({
   successMessage = "Thanks, we'll be in touch shortly.",
   fields = [],
 }: SimpleLeadFormProps) {
+  const id = useId();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [extras, setExtras] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<"name" | "email" | null>(null);
+  const errorId = `${id}-error`;
 
   function setExtra(key: string, value: string) {
     setExtras((prev) => ({ ...prev, [key]: value }));
@@ -52,14 +59,17 @@ export function SimpleLeadForm({
 
     if (!name.trim()) {
       setError("Name is required.");
+      setErrorField("name");
       return;
     }
     if (!email.trim() || !EMAIL_PATTERN.test(email.trim())) {
       setError("Enter a valid email address.");
+      setErrorField("email");
       return;
     }
 
     setError(null);
+    setErrorField(null);
     setState("submitting");
 
     const payload = {
@@ -94,7 +104,7 @@ export function SimpleLeadForm({
 
   if (state === "success") {
     return (
-      <div className="py-6">
+      <div role="status" aria-live="polite" className="py-6">
         <div className="font-display text-xl font-semibold text-[var(--lime)]">
           Thanks — that's in.
         </div>
@@ -105,48 +115,81 @@ export function SimpleLeadForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <input
-        type="text"
-        required
-        placeholder="Full name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
-      />
-      <input
-        type="email"
-        required
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
-      />
+      <div className="space-y-1">
+        <label htmlFor={`${id}-name`} className="block text-sm font-medium text-foreground">
+          Full name
+        </label>
+        <input
+          id={`${id}-name`}
+          type="text"
+          required
+          aria-required="true"
+          aria-invalid={errorField === "name"}
+          aria-describedby={errorField === "name" ? errorId : undefined}
+          placeholder="Full name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
+        />
+      </div>
+      <div className="space-y-1">
+        <label htmlFor={`${id}-email`} className="block text-sm font-medium text-foreground">
+          Email
+        </label>
+        <input
+          id={`${id}-email`}
+          type="email"
+          required
+          aria-required="true"
+          aria-invalid={errorField === "email"}
+          aria-describedby={errorField === "email" ? errorId : undefined}
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
+        />
+      </div>
       {fields.map((key) => {
         const meta = FIELD_META[key];
+        const fieldId = `${id}-${key}`;
         if (meta.type === "textarea") {
           return (
-            <textarea
-              key={key}
-              rows={3}
+            <div key={key} className="space-y-1">
+              <label htmlFor={fieldId} className="block text-sm font-medium text-foreground">
+                {meta.label}
+              </label>
+              <textarea
+                id={fieldId}
+                rows={3}
+                placeholder={meta.placeholder}
+                value={extras[key] ?? ""}
+                onChange={(e) => setExtra(key, e.target.value)}
+                className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
+              />
+            </div>
+          );
+        }
+        return (
+          <div key={key} className="space-y-1">
+            <label htmlFor={fieldId} className="block text-sm font-medium text-foreground">
+              {meta.label}
+            </label>
+            <input
+              id={fieldId}
+              type={meta.type}
               placeholder={meta.placeholder}
               value={extras[key] ?? ""}
               onChange={(e) => setExtra(key, e.target.value)}
               className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
             />
-          );
-        }
-        return (
-          <input
-            key={key}
-            type={meta.type}
-            placeholder={meta.placeholder}
-            value={extras[key] ?? ""}
-            onChange={(e) => setExtra(key, e.target.value)}
-            className="w-full border border-foreground/15 bg-background px-3 py-2 text-sm"
-          />
+          </div>
         );
       })}
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && (
+        <p id={errorId} role="alert" className="text-sm text-red-700 dark:text-red-300">
+          {error}
+        </p>
+      )}
       <MagneticButton>
         <ShimmerButton
           type="submit"
@@ -157,7 +200,7 @@ export function SimpleLeadForm({
         </ShimmerButton>
       </MagneticButton>
       {state === "error" && (
-        <div role="alert" className="space-y-2 text-sm text-red-300">
+        <div role="alert" className="space-y-2 text-sm text-red-700 dark:text-red-300">
           <p>
             Something went wrong on our end. Please email us directly at{" "}
             <a href="mailto:hello@noctix.app" className="underline underline-offset-2">

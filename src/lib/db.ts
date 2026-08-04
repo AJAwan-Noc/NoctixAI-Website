@@ -5,7 +5,6 @@ import { Pool } from "pg";
 // those closures into the server bundle, so the pool credentials never ship
 // to the browser.
 declare global {
-  // eslint-disable-next-line no-var
   var __noctixContentDbPool: Pool | undefined;
 }
 

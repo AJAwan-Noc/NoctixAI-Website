@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 
@@ -7,8 +7,13 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const CLAIMED_KEY = "noctix_freebie_claimed";
 
 export function FreebieForm() {
+  const id = useId();
+  const emailId = `${id}-email`;
+  const errorId = `${id}-error`;
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "submitting" | "success" | "limited" | "error">("idle");
+  const [state, setState] = useState<"idle" | "submitting" | "success" | "limited" | "error">(
+    "idle",
+  );
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent) {
@@ -45,7 +50,7 @@ export function FreebieForm() {
 
   if (state === "success") {
     return (
-      <div className="py-6">
+      <div role="status" aria-live="polite" className="py-6">
         <div className="font-display text-xl font-semibold text-[var(--lime)]">
           Check your inbox.
         </div>
@@ -59,7 +64,7 @@ export function FreebieForm() {
 
   if (state === "limited") {
     return (
-      <div className="py-6">
+      <div role="status" aria-live="polite" className="py-6">
         <div className="font-display text-xl font-semibold text-[var(--lime)]">
           You've already got this one.
         </div>
@@ -76,15 +81,24 @@ export function FreebieForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
-      <input
-        type="email"
-        required
-        placeholder="you@company.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full flex-1 border border-foreground/15 bg-background px-4 py-3 text-sm"
-      />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+      <div className="flex w-full flex-1 flex-col gap-1">
+        <label htmlFor={emailId} className="text-sm font-medium text-foreground">
+          Email
+        </label>
+        <input
+          id={emailId}
+          type="email"
+          required
+          aria-required="true"
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          placeholder="you@company.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full flex-1 border border-foreground/15 bg-background px-4 py-3 text-sm"
+        />
+      </div>
       <MagneticButton>
         <ShimmerButton
           type="submit"
@@ -94,9 +108,13 @@ export function FreebieForm() {
           {state === "submitting" ? "Sending..." : "Get the guide ->"}
         </ShimmerButton>
       </MagneticButton>
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && (
+        <p id={errorId} role="alert" className="text-sm text-red-700 dark:text-red-300">
+          {error}
+        </p>
+      )}
       {state === "error" && (
-        <p role="alert" className="text-sm text-red-300">
+        <p role="alert" className="text-sm text-red-700 dark:text-red-300">
           Something went wrong. Please try again.
         </p>
       )}

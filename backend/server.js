@@ -46,7 +46,7 @@ app.use(
         "script-src": ["'self'", "'unsafe-inline'", "https://static.cloudflareinsights.com"],
       },
     },
-  })
+  }),
 );
 app.use(
   cors({
@@ -58,7 +58,7 @@ app.use(
 
       callback(null, false);
     },
-  })
+  }),
 );
 app.use((req, res, next) => {
   const origin = req.get("origin");
@@ -194,7 +194,7 @@ app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
   }
 
   try {
-    console.log('Forwarding lead to n8n:', {
+    console.log("Forwarding lead to n8n:", {
       name: payload.name,
       email: payload.email,
       service_needed: payload.service_needed,
@@ -202,17 +202,17 @@ app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
     });
 
     const n8nResponse = await fetch(process.env.N8N_WEBHOOK_URL, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-noctix-secret': process.env.N8N_WEBHOOK_SECRET,
+        "Content-Type": "application/json",
+        "x-noctix-secret": process.env.N8N_WEBHOOK_SECRET,
       },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(8000),
     });
 
     if (!n8nResponse.ok) {
-      console.warn('n8n webhook returned a non-success status:', {
+      console.warn("n8n webhook returned a non-success status:", {
         status: n8nResponse.status,
         statusText: n8nResponse.statusText,
       });
@@ -226,7 +226,7 @@ app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
       show_booking: true,
     });
   } catch (error) {
-    if (error.name === 'TimeoutError') console.error('n8n webhook timed out');
+    if (error.name === "TimeoutError") console.error("n8n webhook timed out");
     return res.status(500).json(safeErrorResponse);
   }
 });
@@ -301,7 +301,7 @@ app.post("/api/freebie-request", freebieRateLimiter, async (req, res) => {
       message: limited ? "Request limit reached" : "Guide is on its way",
     });
   } catch (error) {
-    if (error.name === 'TimeoutError') console.error('n8n webhook timed out');
+    if (error.name === "TimeoutError") console.error("n8n webhook timed out");
     return res.status(500).json(safeErrorResponse);
   }
 });
@@ -354,7 +354,11 @@ adminRouter.post("/login", adminLoginLimiter, async (req, res) => {
   try {
     const { password, totp: totpCode } = req.body || {};
 
-    if (!process.env.ADMIN_PASSWORD_HASH || !process.env.ADMIN_TOTP_SECRET || !process.env.ADMIN_JWT_SECRET) {
+    if (
+      !process.env.ADMIN_PASSWORD_HASH ||
+      !process.env.ADMIN_TOTP_SECRET ||
+      !process.env.ADMIN_JWT_SECRET
+    ) {
       return res.status(500).json({ success: false, message: "Admin not configured." });
     }
 
@@ -386,11 +390,9 @@ adminRouter.post("/login", adminLoginLimiter, async (req, res) => {
 
     // Step 3: Issue session
     const csrfToken = crypto.randomBytes(32).toString("hex");
-    const token = jwt.sign(
-      { role: "admin", csrf: csrfToken },
-      process.env.ADMIN_JWT_SECRET,
-      { expiresIn: "45m" }
-    );
+    const token = jwt.sign({ role: "admin", csrf: csrfToken }, process.env.ADMIN_JWT_SECRET, {
+      expiresIn: "45m",
+    });
 
     res.cookie("admin_session", token, {
       httpOnly: true,
@@ -451,7 +453,7 @@ async function getValidTableNames() {
   const { rows } = await adminDb.query(
     `SELECT table_name FROM information_schema.tables
      WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
-     ORDER BY table_name`
+     ORDER BY table_name`,
   );
   return rows.map((r) => r.table_name);
 }
@@ -467,7 +469,7 @@ async function getTableColumns(tableName) {
      FROM information_schema.columns
      WHERE table_schema = 'public' AND table_name = $1
      ORDER BY ordinal_position`,
-    [tableName]
+    [tableName],
   );
   return rows;
 }
@@ -483,7 +485,7 @@ async function getPrimaryKeyColumn(tableName) {
        AND tc.table_schema = 'public'
        AND tc.table_name = $1
      LIMIT 1`,
-    [tableName]
+    [tableName],
   );
   return rows[0]?.column_name ?? null;
 }
@@ -499,7 +501,7 @@ async function writeAuditLog(action, tableName, rowId, snapshot = null) {
     await adminDb.query(
       `INSERT INTO admin_audit_log (action, table_name, row_id, snapshot, created_at)
        VALUES ($1, $2, $3, $4, NOW())`,
-      [action, tableName, String(rowId), snapshot ? JSON.stringify(snapshot) : null]
+      [action, tableName, String(rowId), snapshot ? JSON.stringify(snapshot) : null],
     );
   } catch (err) {
     console.error("Failed to write audit log:", err.message);
@@ -511,7 +513,8 @@ async function writeAuditLog(action, tableName, rowId, snapshot = null) {
 // List tables
 adminRouter.get("/api/tables", requireAdminAuth, async (req, res) => {
   try {
-    if (!adminDb) return res.status(500).json({ success: false, message: "Database not configured." });
+    if (!adminDb)
+      return res.status(500).json({ success: false, message: "Database not configured." });
     const tables = await getValidTableNames();
     return res.json({ success: true, tables });
   } catch (err) {
@@ -522,7 +525,8 @@ adminRouter.get("/api/tables", requireAdminAuth, async (req, res) => {
 // Get table data
 adminRouter.get("/api/tables/:table", requireAdminAuth, async (req, res) => {
   try {
-    if (!adminDb) return res.status(500).json({ success: false, message: "Database not configured." });
+    if (!adminDb)
+      return res.status(500).json({ success: false, message: "Database not configured." });
 
     const validTable = await validateTableName(req.params.table);
     if (!validTable) {
@@ -535,7 +539,7 @@ adminRouter.get("/api/tables/:table", requireAdminAuth, async (req, res) => {
 
     const orderClause = hasCreatedAt ? `ORDER BY ${quoteIdent("created_at")} DESC` : "";
     const { rows } = await adminDb.query(
-      `SELECT * FROM ${quoteIdent(validTable)} ${orderClause} LIMIT 200`
+      `SELECT * FROM ${quoteIdent(validTable)} ${orderClause} LIMIT 200`,
     );
 
     return res.json({ success: true, columns, rows });
@@ -547,7 +551,8 @@ adminRouter.get("/api/tables/:table", requireAdminAuth, async (req, res) => {
 // Insert row
 adminRouter.post("/api/tables/:table", requireAdminAuth, async (req, res) => {
   try {
-    if (!adminDb) return res.status(500).json({ success: false, message: "Database not configured." });
+    if (!adminDb)
+      return res.status(500).json({ success: false, message: "Database not configured." });
 
     const validTable = await validateTableName(req.params.table);
     if (!validTable) {
@@ -586,7 +591,7 @@ adminRouter.post("/api/tables/:table", requireAdminAuth, async (req, res) => {
       `INSERT INTO ${quoteIdent(validTable)} (${insertColumns.join(", ")})
        VALUES (${placeholders.join(", ")})
        RETURNING *`,
-      insertValues
+      insertValues,
     );
 
     const newRow = rows[0];
@@ -601,7 +606,8 @@ adminRouter.post("/api/tables/:table", requireAdminAuth, async (req, res) => {
 // Update row
 adminRouter.put("/api/tables/:table/:id", requireAdminAuth, async (req, res) => {
   try {
-    if (!adminDb) return res.status(500).json({ success: false, message: "Database not configured." });
+    if (!adminDb)
+      return res.status(500).json({ success: false, message: "Database not configured." });
 
     const validTable = await validateTableName(req.params.table);
     if (!validTable) {
@@ -648,7 +654,7 @@ adminRouter.put("/api/tables/:table/:id", requireAdminAuth, async (req, res) => 
        SET ${setClauses.join(", ")}
        WHERE ${quoteIdent(pkColumn)} = $${idx}
        RETURNING *`,
-      values
+      values,
     );
 
     if (rows.length === 0) {
@@ -666,7 +672,8 @@ adminRouter.put("/api/tables/:table/:id", requireAdminAuth, async (req, res) => 
 // Delete row
 adminRouter.delete("/api/tables/:table/:id", requireAdminAuth, async (req, res) => {
   try {
-    if (!adminDb) return res.status(500).json({ success: false, message: "Database not configured." });
+    if (!adminDb)
+      return res.status(500).json({ success: false, message: "Database not configured." });
 
     const validTable = await validateTableName(req.params.table);
     if (!validTable) {
@@ -695,7 +702,7 @@ adminRouter.delete("/api/tables/:table/:id", requireAdminAuth, async (req, res) 
     // Snapshot the row before deleting
     const { rows: existing } = await adminDb.query(
       `SELECT * FROM ${quoteIdent(validTable)} WHERE ${quoteIdent(pkColumn)} = $1 LIMIT 1`,
-      [rowId]
+      [rowId],
     );
 
     if (existing.length === 0) {
@@ -706,7 +713,7 @@ adminRouter.delete("/api/tables/:table/:id", requireAdminAuth, async (req, res) 
 
     await adminDb.query(
       `DELETE FROM ${quoteIdent(validTable)} WHERE ${quoteIdent(pkColumn)} = $1`,
-      [rowId]
+      [rowId],
     );
 
     await writeAuditLog("DELETE", validTable, rowId, snapshot);

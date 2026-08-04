@@ -39,13 +39,7 @@ export function NoctixLogo({ className = "h-7 w-auto", variant = "full" }: Nocti
   // "full" — one inline SVG: the mark nested alongside an SVG <text> wordmark.
   // currentColor + var(--lime) inherit/override exactly like the mark does on its own.
   return (
-    <svg
-      viewBox="0 0 680 180"
-      role="img"
-      fill="currentColor"
-      className={cn("h-7 w-auto", className)}
-    >
-      <title>Noctix AI</title>
+    <svg viewBox="0 0 680 180" fill="currentColor" className={cn("h-7 w-auto", className)}>
       <NoctixLogoMark x={0} y={1} width={178} height={178} />
       <text
         x={210}

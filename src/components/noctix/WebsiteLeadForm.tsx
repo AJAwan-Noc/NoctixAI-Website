@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 
@@ -36,6 +36,7 @@ type WebsiteLeadFormProps = {
 };
 
 type TextFieldProps = {
+  id: string;
   label: string;
   name: keyof WebsiteFormPayload;
   type?: string;
@@ -46,6 +47,7 @@ type TextFieldProps = {
 };
 
 type SelectFieldProps = {
+  id: string;
   label: string;
   name: keyof WebsiteFormPayload;
   placeholder: string;
@@ -119,6 +121,7 @@ export function WebsiteLeadForm({
   introLabel = "// Intake - 2 minutes",
   submitLabel = "Request Audit",
 }: WebsiteLeadFormProps) {
+  const formId = useId();
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errors, setErrors] = useState<FormErrors>({});
   const [timezone, setTimezone] = useState("");
@@ -189,7 +192,11 @@ export function WebsiteLeadForm({
       </div>
 
       {isSuccess ? (
-        <div className="flex min-h-[430px] flex-col items-start justify-center">
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex min-h-[430px] flex-col items-start justify-center"
+        >
           <div className="font-display text-3xl font-semibold text-[var(--lime)]">
             Transmission received.
           </div>
@@ -201,6 +208,7 @@ export function WebsiteLeadForm({
           <input name="company_website_confirm" type="hidden" value="" readOnly />
 
           <TextField
+            id={`${formId}-name`}
             label="Name"
             name="name"
             placeholder="Your full name"
@@ -208,6 +216,7 @@ export function WebsiteLeadForm({
             error={errors.name}
           />
           <TextField
+            id={`${formId}-email`}
             label="Work email"
             name="email"
             type="email"
@@ -215,9 +224,21 @@ export function WebsiteLeadForm({
             required
             error={errors.email}
           />
-          <TextField label="Phone" name="phone" type="tel" placeholder="+1 555 0142" />
-          <TextField label="Company" name="company_name" placeholder="Company name" />
           <TextField
+            id={`${formId}-phone`}
+            label="Phone"
+            name="phone"
+            type="tel"
+            placeholder="+1 555 0142"
+          />
+          <TextField
+            id={`${formId}-company_name`}
+            label="Company"
+            name="company_name"
+            placeholder="Company name"
+          />
+          <TextField
+            id={`${formId}-website`}
             label="Website"
             name="website"
             type="url"
@@ -225,6 +246,7 @@ export function WebsiteLeadForm({
             className="sm:col-span-2"
           />
           <SelectField
+            id={`${formId}-service_needed`}
             label="Service needed"
             name="service_needed"
             placeholder="Choose the best fit"
@@ -234,23 +256,26 @@ export function WebsiteLeadForm({
             className="sm:col-span-2"
           />
           <SelectField
+            id={`${formId}-budget_range`}
             label="Budget range"
             name="budget_range"
             placeholder="Select a range"
             options={budgetOptions}
           />
           <SelectField
+            id={`${formId}-timeline`}
             label="Timeline"
             name="timeline"
             placeholder="When do you want to start?"
             options={timelineOptions}
             className="sm:col-span-2"
           />
-          <label className="flex flex-col gap-2 sm:col-span-2">
+          <label htmlFor={`${formId}-message`} className="flex flex-col gap-2 sm:col-span-2">
             <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40">
               What should we know?
             </span>
             <textarea
+              id={`${formId}-message`}
               name="message"
               rows={5}
               placeholder="Tell us what you want automated, improved, or untangled."
@@ -260,7 +285,7 @@ export function WebsiteLeadForm({
 
           <div className="flex flex-col items-start gap-4 sm:col-span-2">
             {submitState === "error" ? (
-              <div role="alert" className="space-y-2 text-sm text-red-300">
+              <div role="alert" className="space-y-2 text-sm text-red-700 dark:text-red-300">
                 <p>
                   Something went wrong on our end. Please email us directly at{" "}
                   <a href="mailto:hello@noctix.app" className="underline underline-offset-2">
@@ -306,6 +331,7 @@ export function WebsiteLeadForm({
 }
 
 function TextField({
+  id,
   label,
   name,
   type = "text",
@@ -314,31 +340,38 @@ function TextField({
   error,
   className = "",
 }: TextFieldProps) {
+  const errorId = `${id}-error`;
   return (
-    <label className={`flex min-w-0 flex-col gap-2 ${className}`}>
-      <span className="break-words font-mono text-[10px] uppercase leading-5 tracking-[0.22em] text-foreground/40 sm:tracking-[0.3em]">
+    <div className={`flex min-w-0 flex-col gap-2 ${className}`}>
+      <label
+        htmlFor={id}
+        className="break-words font-mono text-[10px] uppercase leading-5 tracking-[0.22em] text-foreground/40 sm:tracking-[0.3em]"
+      >
         {label}
         {required ? <span className="text-[var(--lime)]"> *</span> : null}
-      </span>
+      </label>
       <input
+        id={id}
         name={name}
         type={type}
         required={required}
+        aria-required={required ? "true" : undefined}
         placeholder={placeholder}
         aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${name}-error` : undefined}
+        aria-describedby={error ? errorId : undefined}
         className="w-full min-w-0 border border-foreground/10 bg-foreground/[0.02] px-4 py-3 font-sans text-base text-foreground placeholder:text-foreground/25 focus:border-[var(--lime)] focus:outline-none focus:ring-0"
       />
       {error ? (
-        <span id={`${name}-error`} className="text-xs text-red-300">
+        <span id={errorId} role="alert" className="text-xs text-red-700 dark:text-red-300">
           {error}
         </span>
       ) : null}
-    </label>
+    </div>
   );
 }
 
 function SelectField({
+  id,
   label,
   name,
   placeholder,
@@ -347,18 +380,24 @@ function SelectField({
   error,
   className = "",
 }: SelectFieldProps) {
+  const errorId = `${id}-error`;
   return (
-    <label className={`flex min-w-0 flex-col gap-2 ${className}`}>
-      <span className="break-words font-mono text-[10px] uppercase leading-5 tracking-[0.22em] text-foreground/40 sm:tracking-[0.3em]">
+    <div className={`flex min-w-0 flex-col gap-2 ${className}`}>
+      <label
+        htmlFor={id}
+        className="break-words font-mono text-[10px] uppercase leading-5 tracking-[0.22em] text-foreground/40 sm:tracking-[0.3em]"
+      >
         {label}
         {required ? <span className="text-[var(--lime)]"> *</span> : null}
-      </span>
+      </label>
       <select
+        id={id}
         name={name}
         required={required}
+        aria-required={required ? "true" : undefined}
         defaultValue=""
         aria-invalid={Boolean(error)}
-        aria-describedby={error ? `${name}-error` : undefined}
+        aria-describedby={error ? errorId : undefined}
         className="w-full min-w-0 whitespace-normal border border-foreground/10 bg-background px-4 py-3 font-sans text-base leading-6 text-foreground focus:border-[var(--lime)] focus:outline-none focus:ring-0"
       >
         <option value="" disabled>
@@ -371,10 +410,10 @@ function SelectField({
         ))}
       </select>
       {error ? (
-        <span id={`${name}-error`} className="text-xs text-red-300">
+        <span id={errorId} role="alert" className="text-xs text-red-700 dark:text-red-300">
           {error}
         </span>
       ) : null}
-    </label>
+    </div>
   );
 }

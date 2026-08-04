@@ -78,11 +78,7 @@ export function Nav() {
           </Link>
 
           {/* Services dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
+          <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <Link
               to="/services"
               activeProps={{ className: "text-[var(--lime)] [&>span]:scale-x-100" }}
@@ -191,7 +187,10 @@ export function Nav() {
               <div className="border-b border-foreground/5 py-1 pl-4">
                 <Link
                   to="/services"
-                  onClick={() => { setOpen(false); setMobileServicesOpen(false); }}
+                  onClick={() => {
+                    setOpen(false);
+                    setMobileServicesOpen(false);
+                  }}
                   className="block py-2 text-[10px] text-[var(--lime)]"
                 >
                   All services →
@@ -200,7 +199,10 @@ export function Nav() {
                   <Link
                     key={sub.to}
                     to={sub.to}
-                    onClick={() => { setOpen(false); setMobileServicesOpen(false); }}
+                    onClick={() => {
+                      setOpen(false);
+                      setMobileServicesOpen(false);
+                    }}
                     className="block py-2 text-[10px] text-foreground/60"
                   >
                     {sub.label}
