@@ -13,7 +13,7 @@ export const Route = createFileRoute("/blog/$slug")({
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.metaTitle || loaderData.title} — Noctix AI` },
+          { title: loaderData.metaTitle ?? `${loaderData.title} — Noctix AI` },
           {
             name: "description",
             content: loaderData.metaDescription || loaderData.description,

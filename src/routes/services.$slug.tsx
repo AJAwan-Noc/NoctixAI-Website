@@ -27,10 +27,10 @@ export const Route = createFileRoute("/services/$slug")({
   head: ({ loaderData, match }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.serviceName} — Noctix AI` },
+          { title: loaderData.metaTitle ?? `${loaderData.serviceName} — Noctix AI` },
           {
             name: "description",
-            content: loaderData.subheadline,
+            content: loaderData.metaDescription ?? loaderData.subheadline,
           },
           { property: "og:title", content: `${loaderData.serviceName} — Noctix AI` },
           { property: "og:description", content: loaderData.subheadline },
@@ -100,7 +100,7 @@ function ServiceLandingPage() {
             {page.serviceName}
           </div>
           <h1 className="font-display text-[clamp(2.2rem,6vw,4.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
-            <AuroraText>{page.headline}</AuroraText>
+            <AuroraText>{page.h1Override ?? page.headline}</AuroraText>
           </h1>
           <p className="mt-6 max-w-2xl text-lg text-foreground/65">{page.subheadline}</p>
           <a

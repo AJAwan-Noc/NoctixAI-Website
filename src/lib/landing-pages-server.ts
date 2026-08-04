@@ -22,6 +22,11 @@ export type LandingPageData = {
   proofText: string;
   howItWorks: LandingPageHowItWorks[];
   faq: LandingPageFaqItem[];
+  metaTitle: string | null;
+  metaDescription: string | null;
+  targetKeyword: string | null;
+  h1Override: string | null;
+  ogImagePath: string | null;
 };
 
 export const getLandingPage = createServerFn({ method: "GET" })
@@ -50,7 +55,12 @@ export const getLandingPage = createServerFn({ method: "GET" })
          solution_text  AS "solutionText",
          proof_text     AS "proofText",
          how_it_works   AS "howItWorks",
-         faq
+         faq,
+         meta_title       AS "metaTitle",
+         meta_description AS "metaDescription",
+         target_keyword   AS "targetKeyword",
+         h1_override      AS "h1Override",
+         og_image_path    AS "ogImagePath"
        FROM landing_pages
        WHERE service_slug = $1
        LIMIT 1`,
@@ -64,6 +74,7 @@ export const getLandingPage = createServerFn({ method: "GET" })
     // 2. If audience param present, try to find an override
     let headline = page.defaultHeadline;
     let subheadline = page.defaultSubheadline;
+    let h1Override = page.h1Override;
 
     if (data.audience) {
       const { rows: audienceRows } = await contentDb.query(
@@ -77,6 +88,9 @@ export const getLandingPage = createServerFn({ method: "GET" })
       if (audienceRows[0]) {
         headline = audienceRows[0].headline;
         subheadline = audienceRows[0].subheadline;
+        // The audience-specific headline takes precedence over the static
+        // H1 override too, so suppress it here rather than in the caller.
+        h1Override = null;
       }
       // No match → silently fall back to defaults (already set above)
     }
@@ -91,5 +105,10 @@ export const getLandingPage = createServerFn({ method: "GET" })
       proofText: page.proofText,
       howItWorks: page.howItWorks ?? [],
       faq: page.faq ?? [],
+      metaTitle: page.metaTitle,
+      metaDescription: page.metaDescription,
+      targetKeyword: page.targetKeyword,
+      h1Override,
+      ogImagePath: page.ogImagePath,
     };
   });
