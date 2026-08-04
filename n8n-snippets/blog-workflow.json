@@ -1,0 +1,649 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1,3,5"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        3504,
+        208
+      ],
+      "id": "a7b032af-c61b-47f7-b9e0-80125d0a0dac",
+      "name": "3x a week"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT slug, title, keyword, source_topic FROM blog_posts ORDER BY created_at DESC LIMIT 15;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3728,
+        208
+      ],
+      "id": "0830e882-4322-40f7-882f-adde249121c3",
+      "name": "Get recent posts",
+      "credentials": {
+        "postgres": {
+          "id": "7D8W8NyWJpA7pIyE",
+          "name": "Blog DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT slug, title, description FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 20;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3952,
+        208
+      ],
+      "id": "eaf6bed3-eaf2-4f1e-a2c2-eeabe386dfcb",
+      "name": "Get internal link candidates",
+      "credentials": {
+        "postgres": {
+          "id": "7D8W8NyWJpA7pIyE",
+          "name": "Blog DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS(SELECT 1 FROM blog_topic_ideas WHERE status = 'queued') AS has_idea, (SELECT id FROM blog_topic_ideas WHERE status = 'queued' ORDER BY created_at ASC LIMIT 1) AS id, (SELECT idea FROM blog_topic_ideas WHERE status = 'queued' ORDER BY created_at ASC LIMIT 1) AS idea, (SELECT source FROM blog_topic_ideas WHERE status = 'queued' ORDER BY created_at ASC LIMIT 1) AS source;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4176,
+        208
+      ],
+      "id": "48c93bfd-9f0c-47e2-8de5-408f021932d8",
+      "name": "Get queued topic idea",
+      "credentials": {
+        "postgres": {
+          "id": "7D8W8NyWJpA7pIyE",
+          "name": "Blog DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "b1-if-cond-0001",
+              "leftValue": "={{$json.has_idea}}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4400,
+        208
+      ],
+      "id": "d3a3f89c-c49f-4d52-9703-4086a075c1aa",
+      "name": "Has queued idea?"
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        4624,
+        288
+      ],
+      "id": "07d047e3-54bb-4037-aa99-7d218b62e51c",
+      "name": "RSS: TechCrunch AI"
+    },
+    {
+      "parameters": {
+        "jsCode": "const feed1 = $('RSS: TechCrunch AI').all().map(i => i.json);\n\nconst combined = feed1\n  .filter(item => item.title)\n  .sort((a, b) => new Date(b.isoDate || b.pubDate || 0) - new Date(a.isoDate || a.pubDate || 0))\n  .slice(0, 10)\n  .map(item => `- \"${item.title}\"`)\n  .join('\\n');\n\nreturn [\n  {\n    json: {\n      rssHeadlines: combined || '(no recent items fetched)'\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4848,
+        288
+      ],
+      "id": "16644c7d-207d-456a-beea-102793614456",
+      "name": "Merge RSS items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const recentPosts = $('Get recent posts').all().map(item => item.json);\nconst internalCandidates = $('Get internal link candidates').all().map(item => item.json);\nconst ideaRow = $('Get queued topic idea').first().json;\nconst hasIdea = ideaRow.has_idea === true;\n\nlet rss = '(skipped -- a queued idea took priority this run)';\n\nif (!hasIdea) {\n  try {\n    rss = $('Merge RSS items').first().json.rssHeadlines;\n  } catch (e) {\n    rss = '(no recent items fetched)';\n  }\n}\n\nconst usedTopics = recentPosts\n  .map(p => `- \"${p.title}\" (keyword: ${p.keyword}${p.source_topic ? `, angle: ${p.source_topic}` : ''})`)\n  .join('\\n') || '(none yet)';\n\nconst internalLinkList = internalCandidates\n  .map(p => `- /blog/${p.slug} -- \"${p.title}\"`)\n  .concat([\n    \"- /services -- Noctix's full services overview page\",\n    '- /case-studies -- Noctix client case studies',\n    '- /contact -- Book an automation audit',\n  ])\n  .join('\\n');\n\nconst servicePillars = [\n  'AI Voice Agents (inbound Voxie, outbound Voxo)',\n  'CRM & Workflow Automation',\n  'Lead Generation Systems',\n  'Marketing Automation',\n  'Dashboards & Reporting',\n  'Custom AI Tools',\n  'API Integrations',\n].join(', ');\n\nconst styleReference = `Most CRMs are clean for about three weeks. After that, fields go missing, leads get stuck in the wrong stage, and the pipeline stops reflecting reality. CRM automation is what keeps it usable.\n\nThe goal isn't to automate everything -- it's to remove the manual steps that always get skipped when the team is busy.`;\n\nconst systemPrompt = `You are a senior operations writer for Noctix AI, an AI automation agency that builds voice agents, CRM automations, workflow automations, lead generation systems, marketing automation, and dashboards for businesses in the US, UK, and Pakistan.\n\nYou write like an operator who has actually built these systems -- direct, concrete, no filler, no hype words like \"revolutionize\" or \"game-changing\" or \"unlock\". Short paragraphs. Real specifics over vague claims. This is the voice of an existing post on the site, match this tone exactly:\n\n\"\"\"\n${styleReference}\n\"\"\"\n\nYou are writing ONE new blog post. Output ONLY valid JSON matching the schema below -- no markdown code fences, no commentary before or after, just the JSON object.`;\n\nconst topicGuidance = hasIdea\n  ? `A human has specifically suggested this topic idea -- prioritize writing about this unless it's a near-duplicate of something already covered above: \"${ideaRow.idea}\" (source: ${ideaRow.source || 'manual'})`\n  : `No specific human-suggested topic is queued this time. Choose the best topic using the signals below, in this priority order:\n1. Recent AI industry news below -- only if something genuinely connects to a Noctix service and is worth a timely angle.\n2. Noctix's service pillars generally, filling a gap not yet covered.\n\nRecent AI industry headlines (use only if genuinely relevant to a Noctix service -- do not force a connection that isn't there):\n${rss}`;\n\nconst userPrompt = `Noctix's core service pillars: ${servicePillars}\n\n${topicGuidance}\n\nTopics already covered on the blog -- do NOT repeat these or pick a near-duplicate angle:\n${usedTopics}\n\nReal internal pages you may link to (pick 2-4 of these, and ONLY these -- never invent a URL):\n${internalLinkList}\n\nTask:\n1. Pick ONE specific, narrow topic related to Noctix's services that is NOT already covered above, following the topic guidance given.\n2. Write a full blog post about it, 1000-1600 words, following this structure:\n   - The first 1-2 sentences must directly answer the core question a reader has, in plain language, before any setup or context. AI search engines (ChatGPT, Perplexity, Google AI Overviews) extract answers from roughly the first 500 words, so the direct answer cannot be buried.\n   - 4-7 H2 sections (use \"## \" markdown), each covering one concrete sub-point.\n   - Natural paragraph prose, not bullet-point-only content. Short paragraphs (2-4 sentences).\n   - A natural closing paragraph connecting the topic back to what Noctix builds, without being a hard sales pitch mid-article -- one clear mention of Noctix is enough.\n   - 3-5 FAQ question/answer pairs covering related questions a reader would still have (each answer 1-3 sentences).\n3. Propose 2-3 external links to genuinely well-known, authoritative sources (official documentation, established research or news organizations, well-known tool vendors) that support a specific factual claim you make in the post. Never link to a company that competes directly with Noctix's automation-agency services. If you are not confident of the exact real URL for a source, use the organization's known root domain plus your best-effort path -- a validation step will check these before publishing, so do not fabricate a specific statistic or quote to justify a link; only propose a link where the general claim is true regardless of the exact page.\n\nOutput this exact JSON shape:\n{\n  \"title\": \"string, compelling, under 65 characters\",\n  \"meta_title\": \"string, keyword near the front, under 60 characters\",\n  \"meta_description\": \"string, 140-160 characters, includes the target keyword\",\n  \"slug\": \"string, lowercase-hyphenated, under 60 characters\",\n  \"keyword\": \"string, the primary target keyword/phrase\",\n  \"secondary_keywords\": [\"string\", \"string\"],\n  \"description\": \"string, 1-2 sentence teaser for the blog index card\",\n  \"body\": \"string, the full post in markdown using ## for H2 headers, with internal links written as [anchor text](/blog/slug-here) and external links written as [anchor text](https://example.com/path) inline in the prose where relevant\",\n  \"faq\": [{\"question\": \"string\", \"answer\": \"string\"}],\n  \"internal_links\": [{\"slug\": \"string, matching one of the real pages listed above exactly\", \"anchor_text\": \"string\"}],\n  \"external_links\": [{\"url\": \"string\", \"anchor_text\": \"string\", \"reason\": \"string, one sentence on why this source\"}],\n  \"source_topic\": \"string, one sentence explaining why you picked this angle -- state explicitly whether it came from the human-suggested idea, AI news, or general reasoning\",\n  \"read_time_minutes\": integer\n}`;\n\nreturn [{\n  json: {\n    systemPrompt,\n    userPrompt,\n    queuedIdeaId: hasIdea ? ideaRow.id : null,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5072,
+        208
+      ],
+      "id": "0980d1f8-b116-49fb-8dcb-4fa366f66094",
+      "name": "Build generation prompt"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"openai/gpt-oss-120b\", messages: [ { role: \"system\", content: $json.systemPrompt }, { role: \"user\", content: $json.userPrompt } ], temperature: 0.7, max_tokens: 4000 }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5296,
+        208
+      ],
+      "id": "e1bece73-6517-4592-b5e8-e9d8a6712ee9",
+      "name": "Generate draft via OpenRouter",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xrdm7ASN2v5RIBD8",
+          "name": "openrouter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst content = raw.choices?.[0]?.message?.content;\n\nif (!content) {\n  throw new Error('OpenRouter response had no message content -- check the model ID and API key. Raw response: ' + JSON.stringify(raw).slice(0, 500));\n}\n\nlet cleaned = content.trim();\ncleaned = cleaned.replace(/^```json\\s*/i, '').replace(/^```\\s*/, '').replace(/```\\s*$/, '');\n\nlet post;\ntry {\n  post = JSON.parse(cleaned);\n} catch (e) {\n  throw new Error('Model did not return valid JSON. First 500 chars: ' + cleaned.slice(0, 500));\n}\n\nconst required = ['title', 'meta_title', 'meta_description', 'slug', 'keyword', 'description', 'body', 'faq', 'internal_links', 'external_links', 'source_topic'];\nfor (const field of required) {\n  if (post[field] === undefined) {\n    throw new Error(`Model output is missing required field: ${field}`);\n  }\n}\n\npost.slug = String(post.slug)\n  .toLowerCase()\n  .trim()\n  .replace(/[^a-z0-9]+/g, '-')\n  .replace(/^-+|-+$/g, '');\n\nif (!post.slug) {\n  throw new Error('Generated slug was empty after normalization');\n}\n\nconst minutes = post.read_time_minutes || Math.max(1, Math.round((post.body.split(/\\s+/).length) / 200));\npost.read_time = `${minutes} min read`;\n\n// n8n's Code node sandbox disallows require('crypto'), so this generates\n// the approval token with plain JS instead -- no module needed, works\n// regardless of instance security settings.\nfunction randomHex(length) {\n  const chars = '0123456789abcdef';\n  let out = '';\n  for (let i = 0; i < length; i++) {\n    out += chars[Math.floor(Math.random() * chars.length)];\n  }\n  return out;\n}\npost.approval_token = randomHex(48);\n\npost.queued_idea_id = $('Build generation prompt').first().json.queuedIdeaId;\n\nreturn [{ json: post }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5520,
+        208
+      ],
+      "id": "f19e6565-1712-4ca9-8ebc-3bae645e3383",
+      "name": "Parse and validate LLM output"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node: \"Build insert SQL\"\n// Mode: Run Once for All Items (this workflow processes one post per run)\n//\n// This node's own immediate input is \"Validate external links\", which only\n// carries { valid_links, rejected_links, slack_message } -- not the post\n// itself. The generated post is read from \"Parse and validate LLM output\"\n// directly via node reference, and the *validated* external links (not the\n// model's raw, unvalidated proposal) are read from \"Validate external\n// links\".\n//\n// Fixes vs. the previous version of this node:\n//   1. Internal links: normalizes each l.slug instead of blindly\n//      prepending '/blog/', which produced /blog//blog/some-slug whenever\n//      the model already returned a pre-formatted target (it usually does\n//      -- see the internal-link candidate list built in \"Build generation\n//      prompt\", which already lists paths as \"/blog/actual-slug\").\n//   2. SQL: emits { query, values } with $1, $2, ... placeholders instead of\n//      building the statement with manual \".replace(/'/g, \"''\")\" escaping.\n//      Adds ON CONFLICT (slug) DO NOTHING + RETURNING, and word_count.\n//\n// Downstream wiring this requires:\n//   - \"Insert draft\" (Postgres, Execute Query): Query = {{ $json.query }},\n//     Query Parameters/Query Replacement = {{ $json.values }}, and\n//     \"Always Output Data\" ON (ON CONFLICT DO NOTHING returns zero rows on\n//     a duplicate slug -- without this the branch just stops).\n//   - The \"Insert succeeded?\" IF node after it branches on {{$json.slug}}.\n\nconst post = $('Parse and validate LLM output').first().json;\nconst validated = $('Validate external links').first().json;\n\nfunction normalizeInternalLink(rawSlug) {\n  if (typeof rawSlug !== 'string' || !rawSlug.trim()) return null;\n\n  const path = rawSlug.trim().replace(/^\\/+/, ''); // strip leading slashes\n\n  let normalized;\n  if (path.startsWith('blog/')) {\n    normalized = '/blog/' + path.slice('blog/'.length);\n  } else if (\n    path.startsWith('services') ||\n    path.startsWith('contact') ||\n    path.startsWith('case-studies')\n  ) {\n    normalized = '/' + path;\n  } else {\n    // No recognized prefix -- treat the whole value as a bare blog slug.\n    normalized = '/blog/' + path;\n  }\n\n  normalized = normalized.replace(/\\/{2,}/g, '/'); // collapse repeated slashes\n\n  return /^\\/[a-z0-9\\-\\/]+$/.test(normalized) ? normalized : null;\n}\n\nconst internalLinks = (Array.isArray(post.internal_links) ? post.internal_links : [])\n  .map((l) => {\n    const url = normalizeInternalLink(l && l.slug);\n    return url ? { url, anchor_text: l && l.anchor_text } : null;\n  })\n  .filter(Boolean);\n\n// Store what actually passed validation, not the model's raw proposal.\nconst externalLinks = (validated.valid_links || []).map((l) => ({\n  url: l.url,\n  anchor_text: l.anchor_text,\n}));\n\nconst bodyText = typeof post.body === 'string' ? post.body.trim() : '';\nconst wordCount = bodyText ? bodyText.split(/\\s+/).filter(Boolean).length : 0;\n\nconst COLUMNS = [\n  'slug',\n  'title',\n  'meta_title',\n  'meta_description',\n  'description',\n  'keyword',\n  'secondary_keywords',\n  'body',\n  'faq',\n  'internal_links',\n  'external_links',\n  'author_name',\n  'read_time',\n  'status',\n  'approval_token',\n  'source_topic',\n  'word_count',\n];\n\nconst COLUMN_CASTS = {\n  secondary_keywords: 'text[]',\n  faq: 'jsonb',\n  internal_links: 'jsonb',\n  external_links: 'jsonb',\n};\n\nconst row = {\n  slug: post.slug,\n  title: post.title,\n  meta_title: post.meta_title,\n  meta_description: post.meta_description,\n  description: post.description,\n  keyword: post.keyword,\n  secondary_keywords: Array.isArray(post.secondary_keywords) ? post.secondary_keywords : [],\n  body: post.body,\n  faq: JSON.stringify(post.faq ?? []),\n  internal_links: JSON.stringify(internalLinks),\n  external_links: JSON.stringify(externalLinks),\n  author_name: 'Ayaan Awan',\n  read_time: post.read_time,\n  status: 'draft',\n  approval_token: post.approval_token,\n  source_topic: post.source_topic,\n  word_count: wordCount,\n};\n\nconst values = COLUMNS.map((col) => row[col]);\nconst placeholders = COLUMNS.map((col, i) => {\n  const cast = COLUMN_CASTS[col];\n  return cast ? `$${i + 1}::${cast}` : `$${i + 1}`;\n}).join(', ');\n\nconst query = `\nINSERT INTO blog_posts\n  (${COLUMNS.join(', ')})\nVALUES (${placeholders})\nON CONFLICT (slug) DO NOTHING\nRETURNING id, slug, approval_token\n`;\n\nreturn [\n  {\n    json: {\n      query,\n      values,\n      queued_idea_id: post.queued_idea_id,\n      internal_links_normalized: internalLinks,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6416,
+        208
+      ],
+      "id": "61e28598-f4dd-475e-9f60-7ab18f46c447",
+      "name": "Build insert SQL"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {
+          "queryReplacement": "={{ $json.values }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        6640,
+        208
+      ],
+      "id": "a331923f-296a-419d-bc31-00926f6dd307",
+      "name": "Insert draft",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "7D8W8NyWJpA7pIyE",
+          "name": "Blog DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "insert-ok-cond-0001",
+              "leftValue": "={{ $json.slug }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6864,
+        208
+      ],
+      "id": "b2c4e8a1-3f5d-4a6e-9c1b-7d8e2f4a5b6c",
+      "name": "Insert succeeded?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        6864,
+        400
+      ],
+      "id": "c3d5f9b2-4a6e-4b7f-8d2c-1e3f5a6b7c8d",
+      "name": "Duplicate slug — skipped"
+    },
+    {
+      "parameters": {
+        "jsCode": "const built = $('Build insert SQL').first().json;\nconst id = built.queued_idea_id;\n\nconst sql = id\n  ? `UPDATE blog_topic_ideas SET status='used', used_at=now() WHERE id='${String(id).replace(/'/g, \"''\")}' AND status='queued';`\n  : `SELECT 1;`;\n\nreturn [{ json: { sql } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7088,
+        208
+      ],
+      "id": "aa0cecbb-5ee5-4d8b-b6bb-8e5e0f575ec3",
+      "name": "Build mark-idea-used SQL"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{$json.sql}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        7312,
+        208
+      ],
+      "id": "ccafc56b-2864-4b46-a649-21d3310ede06",
+      "name": "Mark idea used if applicable",
+      "credentials": {
+        "postgres": {
+          "id": "7D8W8NyWJpA7pIyE",
+          "name": "Blog DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node: \"Build Slack message\"\n//\n// Reads the post from \"Parse and validate LLM output\" (its own immediate\n// input, \"Mark idea used if applicable\", only carries idea-table SQL\n// bookkeeping, not the post). Reads the validated external links section\n// pre-built by \"Validate external links\" instead of re-deriving it, and\n// the normalized internal links from \"Build insert SQL\" so the slugs shown\n// here match exactly what got stored on the row.\n\nconst post = $('Parse and validate LLM output').first().json;\nconst validated = $('Validate external links').first().json;\nconst built = $('Build insert SQL').first().json;\nconst inserted = $('Insert draft').first().json;\n\nconst baseUrl = 'https://noctix.app';\nconst approveUrl = `https://n8nautomations.noctix.app/webhook/noctix-blog-approve?post=${inserted.id}&token=${inserted.approval_token}&action=approve`;\nconst rejectUrl = `https://n8nautomations.noctix.app/webhook/noctix-blog-approve?post=${inserted.id}&token=${inserted.approval_token}&action=reject`;\nconst previewUrl = `${baseUrl}/blog/preview/${inserted.slug}?token=${inserted.approval_token}`;\n\nconst internalLines =\n  (built.internal_links_normalized || [])\n    .map((l) => `\\u2022 <${baseUrl}${l.url}|${l.anchor_text}>`)\n    .join('\\n') || '_none_';\n\nconst text =\n  `\\uD83D\\uDCDD *New blog draft ready for review*\\n\\n` +\n  `*${post.title}*\\n` +\n  `_Keyword: ${post.keyword}_\\n\\n` +\n  `${post.description}\\n\\n` +\n  `*Why this topic:* ${post.source_topic}\\n\\n` +\n  `*Internal links:*\\n${internalLines}\\n\\n` +\n  `${validated.slack_message}\\n\\n` +\n  `<${previewUrl}|\\uD83D\\uDCC4 Preview the full post>\\n\\n` +\n  `<${approveUrl}|\\u2705 Approve & publish>   \\u00b7   <${rejectUrl}|\\u274C Reject>`;\n\nreturn [{ json: { slack_message: text } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7536,
+        208
+      ],
+      "id": "8d15b599-d053-4d47-9492-440edcfdb876",
+      "name": "Build Slack message"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#blog-approvals",
+          "mode": "name"
+        },
+        "text": "={{ $json.slack_message }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        7760,
+        208
+      ],
+      "id": "ca916e1d-085a-42b7-9584-ecc3eb1dfb97",
+      "name": "Send to Slack for approval",
+      "webhookId": "27a98b21-58b4-4169-ad9f-70e41924dc72",
+      "credentials": {
+        "slackApi": {
+          "id": "shXEavbO6ZyuM2xA",
+          "name": "Website Slack Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "external_links",
+        "options": {
+          "destinationFieldName": "link"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5744,
+        208
+      ],
+      "id": "82835e98-e480-4ff3-b180-e95e85d26229",
+      "name": "Split Out External Links"
+    },
+    {
+      "parameters": {
+        "url": "=={{ $json.link.url ?? $json.link }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 8000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        5968,
+        208
+      ],
+      "id": "60de2fb6-cbd5-477c-8037-e03e50431e85",
+      "name": "GET external link",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node: \"Validate external links\" (aggregate)\n// Mode: Run Once for All Items\n//\n// Reads the per-link HTTP responses from this node's own input, and pulls the\n// original link (url + anchor_text) back from the Split Out node via\n// itemMatching() so the two stay correctly paired regardless of item order.\n//\n// IMPORTANT: leave \"Continue On Fail\" OFF on *this* node. The throw below is\n// what's supposed to stop the workflow and hand off to the configured Error\n// Workflow. Swallowing it here would let a post with zero citations publish\n// anyway — which is the exact failure mode this fix closes.\n\nconst SPLIT_OUT_NODE = 'Split Out External Links';\nconst MAX_VALID_LINKS = 3;\n\nconst items = $input.all();\nconst valid = [];\nconst rejected = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const response = items[i].json;\n  const sourceLink = $(SPLIT_OUT_NODE).itemMatching(i).json.link;\n\n  const url = sourceLink && typeof sourceLink === 'object' ? sourceLink.url : sourceLink;\n  const anchorText =\n    sourceLink && typeof sourceLink === 'object' ? sourceLink.anchor_text : undefined;\n\n  // With \"Never Error\" on, every completed request lands here with a numeric\n  // statusCode — success or not. Only hard failures (DNS, connection refused,\n  // the 8s timeout) skip that and show up as an item-level error instead.\n  if (response.error || typeof response.statusCode !== 'number') {\n    rejected.push({\n      url,\n      status: null,\n      reason: response.error?.message ?? String(response.error ?? 'request failed'),\n    });\n    continue;\n  }\n\n  const status = response.statusCode;\n\n  if (status < 400) {\n    if (valid.length < MAX_VALID_LINKS) {\n      valid.push({ url, anchor_text: anchorText, status });\n    }\n    // Extra passing links beyond the cap are just not carried forward — the\n    // target site didn't reject them, so they don't belong in rejected_links\n    // either. They're simply unused.\n  } else {\n    rejected.push({ url, status, reason: `HTTP ${status}` });\n  }\n}\n\nif (valid.length === 0) {\n  throw new Error(\n    `External link validation: 0 of ${items.length} candidate link(s) passed. ` +\n      rejected.map((r) => `${r.url} -> ${r.status ?? r.reason}`).join('; '),\n  );\n}\n\nconst slackLines = [\n  `*External links (${valid.length}/${MAX_VALID_LINKS} used):*`,\n  ...(valid.length\n    ? valid.map((l) => `• <${l.url}|${l.anchor_text || l.url}> — HTTP ${l.status}`)\n    : ['_none validated_']),\n];\n\nif (rejected.length) {\n  slackLines.push('', `*Rejected (${rejected.length}):*`);\n  slackLines.push(\n    ...rejected.map((l) => `• ${l.url} — ${l.status ? `HTTP ${l.status}` : l.reason}`),\n  );\n}\n\nreturn [\n  {\n    json: {\n      valid_links: valid,\n      rejected_links: rejected,\n      slack_message: slackLines.join('\\n'),\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6192,
+        208
+      ],
+      "id": "f0918c58-c6fa-4b4b-8b7e-2b6048978122",
+      "name": "Validate external links"
+    }
+  ],
+  "connections": {
+    "3x a week": {
+      "main": [
+        [
+          {
+            "node": "Get recent posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get recent posts": {
+      "main": [
+        [
+          {
+            "node": "Get internal link candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get internal link candidates": {
+      "main": [
+        [
+          {
+            "node": "Get queued topic idea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get queued topic idea": {
+      "main": [
+        [
+          {
+            "node": "Has queued idea?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has queued idea?": {
+      "main": [
+        [
+          {
+            "node": "Build generation prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RSS: TechCrunch AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS: TechCrunch AI": {
+      "main": [
+        [
+          {
+            "node": "Merge RSS items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge RSS items": {
+      "main": [
+        [
+          {
+            "node": "Build generation prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build generation prompt": {
+      "main": [
+        [
+          {
+            "node": "Generate draft via OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate draft via OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "Parse and validate LLM output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and validate LLM output": {
+      "main": [
+        [
+          {
+            "node": "Split Out External Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build insert SQL": {
+      "main": [
+        [
+          {
+            "node": "Insert draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert draft": {
+      "main": [
+        [
+          {
+            "node": "Insert succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Build mark-idea-used SQL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Duplicate slug — skipped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build mark-idea-used SQL": {
+      "main": [
+        [
+          {
+            "node": "Mark idea used if applicable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark idea used if applicable": {
+      "main": [
+        [
+          {
+            "node": "Build Slack message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Slack message": {
+      "main": [
+        [
+          {
+            "node": "Send to Slack for approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out External Links": {
+      "main": [
+        [
+          {
+            "node": "GET external link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET external link": {
+      "main": [
+        [
+          {
+            "node": "Validate external links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate external links": {
+      "main": [
+        [
+          {
+            "node": "Build insert SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "105f988d6575e5a38da2c4dd99dd4d0355406e6cfaa4036f945dd00a1702d111"
+  }
+}
