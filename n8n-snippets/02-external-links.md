@@ -23,7 +23,15 @@ Replace the single Code node with three nodes:
 2. **HTTP Request** — a real node (not `this.helpers.httpRequest` inside a Code node), doing
    a plain `GET` with a browser User-Agent, one per item.
 3. **Code node ("Validate external links")** — aggregates the per-link responses, classifies
-   valid vs. rejected, caps valid links at 3, and throws if none pass.
+   valid vs. rejected, caps valid links at 5, and throws if none pass.
+
+Since only a fraction of proposed candidates typically survive an HTTP check (dead links,
+paywalls, blocked requests), the generation prompt asks the model for 6-8 external-link
+candidates rather than 2-3, specifically so 5 usually clears validation — see
+`04-content-mix.js`. This node still only throws on *zero* survivors, not fewer than 5: a
+hard minimum of 5 would block publishing on topics where fewer authoritative sources exist,
+trading a rare thin-citations post for a much higher failed-run rate. Adjust `MAX_VALID_LINKS`
+and the throw condition below if you want stricter behavior.
 
 Assumptions (adjust the field names below if your actual node differs):
 
@@ -105,7 +113,7 @@ With this combination, every item downstream is one of:
 // anyway — which is the exact failure mode this fix closes.
 
 const SPLIT_OUT_NODE = 'Split Out External Links';
-const MAX_VALID_LINKS = 3;
+const MAX_VALID_LINKS = 5;
 
 const items = $input.all();
 const valid = [];
@@ -177,7 +185,7 @@ return [
 ];
 ```
 
-Output shape: a single item with `valid_links` (≤3, each `{ url, anchor_text, status }`),
+Output shape: a single item with `valid_links` (≤5, each `{ url, anchor_text, status }`),
 `rejected_links` (all failures, each `{ url, status, reason }` — `status` is `null` for
 hard failures that never got a response), and a ready-to-post `slack_message` string.
 

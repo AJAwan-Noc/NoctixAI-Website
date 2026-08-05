@@ -94,6 +94,28 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
         <Markdown>{body}</Markdown>
       </div>
 
+      {post.externalLinks?.length > 0 && (
+        <div className="mt-10 border-t border-foreground/10 pt-6">
+          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40">
+            Sources
+          </div>
+          <ul className="mt-3 space-y-1.5 text-sm">
+            {post.externalLinks.map((link) => (
+              <li key={link.url}>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  className="text-[var(--lime)] hover:underline"
+                >
+                  {link.anchor_text || link.url}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {post.authorName && (
         <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-foreground/10 pt-6 text-sm text-foreground/60">
           <span className="text-foreground/80">{post.authorName}</span>
@@ -122,6 +144,21 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
               <p className="mt-2 text-foreground/70">{item.answer}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {post.internalLinks?.length > 0 && (
+        <div className="mt-16">
+          <h2 className="font-display text-2xl font-semibold tracking-tight">Related reading</h2>
+          <ul className="mt-4 space-y-2">
+            {post.internalLinks.map((link) => (
+              <li key={link.url}>
+                <Link to={link.url} className="text-[var(--lime)] hover:underline">
+                  {link.anchor_text || link.url}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

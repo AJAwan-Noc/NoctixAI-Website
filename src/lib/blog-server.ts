@@ -11,6 +11,8 @@ export type BlogPostSummary = {
 
 export type BlogFaqItem = { question: string; answer: string };
 
+export type BlogLink = { url: string; anchor_text: string };
+
 export type BlogPost = BlogPostSummary & {
   body: string;
   metaTitle: string;
@@ -22,6 +24,8 @@ export type BlogPost = BlogPostSummary & {
   publishedAt: string | null;
   updatedAt: string | null;
   ogImagePath: string | null;
+  internalLinks: BlogLink[];
+  externalLinks: BlogLink[];
 };
 
 export type PaginatedPosts = {
@@ -77,7 +81,9 @@ export const getPostBySlug = createServerFn({ method: "GET" })
          body, meta_title as "metaTitle", meta_description as "metaDescription",
          faq, author_name as "authorName", author_bio as "authorBio",
          author_linkedin as "authorLinkedin", published_at as "publishedAt",
-         updated_at as "updatedAt", og_image_path as "ogImagePath"
+         updated_at as "updatedAt", og_image_path as "ogImagePath",
+         coalesce(internal_links, '[]'::jsonb) as "internalLinks",
+         coalesce(external_links, '[]'::jsonb) as "externalLinks"
        from blog_posts
        where slug = $1 and status = 'published'
        limit 1`,
@@ -104,7 +110,9 @@ export const getDraftPreview = createServerFn({ method: "GET" })
          body, meta_title as "metaTitle", meta_description as "metaDescription",
          faq, author_name as "authorName", author_bio as "authorBio",
          author_linkedin as "authorLinkedin", published_at as "publishedAt",
-         og_image_path as "ogImagePath"
+         og_image_path as "ogImagePath",
+         coalesce(internal_links, '[]'::jsonb) as "internalLinks",
+         coalesce(external_links, '[]'::jsonb) as "externalLinks"
        from blog_posts
        where slug = $1 and approval_token = $2 and status = 'draft'
        limit 1`,

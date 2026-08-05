@@ -153,7 +153,7 @@ ${topicGuidance}
 Topics already covered on the blog -- do NOT repeat these or pick a near-duplicate angle:
 ${usedTopics}
 
-Real internal pages you may link to (pick 2-4 of these, and ONLY these -- never invent a URL):
+Real internal pages you may link to (pick 3-5 of these, and ONLY these -- never invent a URL). Every one you pick will be shown to the reader in a "Related reading" section on the published page, whether or not you also reference it inline, so pick pages that are genuinely relevant to this topic, not just to hit the count:
 ${internalLinkList}
 
 Task:
@@ -164,7 +164,7 @@ Task:
    - Natural paragraph prose, not bullet-point-only content. Short paragraphs (2-4 sentences).
    - A natural closing paragraph connecting the topic back to what Noctix builds, without being a hard sales pitch mid-article -- one clear mention of Noctix is enough.
    - 3-5 FAQ question/answer pairs covering related questions a reader would still have (each answer 1-3 sentences).
-3. Propose 2-3 external links to genuinely well-known, authoritative sources (official documentation, established research or news organizations, well-known tool vendors) that support a specific factual claim you make in the post. Never link to a company that competes directly with Noctix's automation-agency services. If you are not confident of the exact real URL for a source, use the organization's known root domain plus your best-effort path -- a validation step will check these before publishing, so do not fabricate a specific statistic or quote to justify a link; only propose a link where the general claim is true regardless of the exact page.
+3. Propose 6-8 external links to genuinely well-known, authoritative sources (official documentation, established research or news organizations, well-known tool vendors) that support specific factual claims you make in the post. A validation step fetches every one of these URLs and drops any that don't resolve (dead link, 404, paywall, blocked request) before publishing, keeping up to 5 of the ones that do -- propose more candidates than you think you need, since a meaningful fraction will get filtered out. You do not need to weave every proposed link into the prose; 1-2 natural inline citations in the body is enough, the rest will still be listed for the reader in a "Sources" section on the published page. Never link to a company that competes directly with Noctix's automation-agency services. If you are not confident of the exact real URL for a source, use the organization's known root domain plus your best-effort path -- do not fabricate a specific statistic or quote to justify a link; only propose a link where the general claim is true regardless of the exact page.
 
 Output this exact JSON shape:
 {
