@@ -132,7 +132,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const feed1 = $('RSS: TechCrunch AI').all().map(i => i.json);\n\nconst combined = feed1\n  .filter(item => item.title)\n  .sort((a, b) => new Date(b.isoDate || b.pubDate || 0) - new Date(a.isoDate || a.pubDate || 0))\n  .slice(0, 10)\n  .map(item => `- \"${item.title}\"`)\n  .join('\\n');\n\nreturn [\n  {\n    json: {\n      rssHeadlines: combined || '(no recent items fetched)'\n    }\n  }\n];"
+        "jsCode": "const feed1 = $('RSS: TechCrunch AI').all().map(i => i.json);\n\nconst combined = feed1\n  .filter(item => item.title)\n  .sort((a, b) => new Date(b.isoDate || b.pubDate || 0) - new Date(a.isoDate || a.pubDate || 0))\n  .slice(0, 10)\n  .map(item => `- \"${item.title}\" (${item.link || 'no URL available'})`)\n  .join('\\n');\n\nreturn [\n  {\n    json: {\n      rssHeadlines: combined || '(no recent items fetched)'\n    }\n  }\n];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -145,7 +145,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Code node: \"Build generation prompt\"\n// Replaces the current node's jsCode in full. Self-contained change to\n// topic selection only -- the returned shape ({ systemPrompt, userPrompt,\n// queuedIdeaId }) is identical, so nothing downstream (OpenRouter call,\n// \"Parse and validate LLM output\", the JSON schema the model must return)\n// needs to change.\n//\n// What changed vs. the previous version: only how `topicGuidance` gets\n// built when no human idea is queued. The hasIdea branch is untouched --\n// a queued idea still wins regardless of what day it is.\n//\n// When no idea is queued, topic selection now depends on the day the\n// workflow actually runs (schedule: Mon/Wed/Fri 09:00):\n//   Monday    -> niche-specific angle (NICHES x a service pillar)\n//   Wednesday -> AI news commentary, RSS becomes the primary directive\n//                instead of an optional signal\n//   Friday (or any other day this runs on, e.g. a manual test execution)\n//                -> general gap-filling, same logic as before\n//\n// Day-of-week is read from $now (Luxon, in the workflow/instance timezone)\n// rather than `new Date()`, so it matches the same timezone the schedule\n// trigger's cron expression is evaluated in -- not whatever timezone the\n// underlying Node.js process happens to be in.\n\nconst recentPosts = $('Get recent posts').all().map(item => item.json);\nconst internalCandidates = $('Get internal link candidates').all().map(item => item.json);\nconst ideaRow = $('Get queued topic idea').first().json;\nconst hasIdea = ideaRow.has_idea === true;\n\nlet rss = '(skipped -- a queued idea took priority this run)';\n\nif (!hasIdea) {\n  try {\n    rss = $('Merge RSS items').first().json.rssHeadlines;\n  } catch (e) {\n    rss = '(no recent items fetched)';\n  }\n}\n\nconst usedTopics = recentPosts\n  .map(p => `- \"${p.title}\" (keyword: ${p.keyword}${p.source_topic ? `, angle: ${p.source_topic}` : ''})`)\n  .join('\\n') || '(none yet)';\n\nconst internalLinkList = internalCandidates\n  .map(p => `- /blog/${p.slug} -- \"${p.title}\"`)\n  .concat([\n    \"- /services -- Noctix's full services overview page\",\n    '- /case-studies -- Noctix client case studies',\n    '- /contact -- Book an automation audit',\n  ])\n  .join('\\n');\n\nconst servicePillars = [\n  'AI Voice Agents (inbound Voxie, outbound Voxo)',\n  'CRM & Workflow Automation',\n  'Lead Generation Systems',\n  'Marketing Automation',\n  'Dashboards & Reporting',\n  'Custom AI Tools',\n  'API Integrations',\n].join(', ');\n\nconst styleReference = `Most CRMs are clean for about three weeks. After that, fields go missing, leads get stuck in the wrong stage, and the pipeline stops reflecting reality. CRM automation is what keeps it usable.\n\nThe goal isn't to automate everything -- it's to remove the manual steps that always get skipped when the team is busy.`;\n\nconst systemPrompt = `You are a senior operations writer for Noctix AI, an AI automation agency that builds voice agents, CRM automations, workflow automations, lead generation systems, marketing automation, and dashboards for businesses in the US, UK, and Pakistan.\n\nYou write like an operator who has actually built these systems -- direct, concrete, no filler, no hype words like \"revolutionize\" or \"game-changing\" or \"unlock\". Short paragraphs. Real specifics over vague claims. This is the voice of an existing post on the site, match this tone exactly:\n\n\"\"\"\n${styleReference}\n\"\"\"\n\nYou are writing ONE new blog post. Output ONLY valid JSON matching the schema below -- no markdown code fences, no commentary before or after, just the JSON object.`;\n\n// ---------------------------------------------------------------------\n// Day-of-week content mix (only applies when no human idea is queued --\n// the hasIdea branch below always wins outright).\n// ---------------------------------------------------------------------\n\nconst NICHES = [\n  'Real Estate',\n  'Healthcare & Medical Practices',\n  'Legal & Law Firms',\n  'Home Services (HVAC, Plumbing, Electrical)',\n  'E-commerce & Retail',\n  'Hospitality & Restaurants',\n  'Financial Services & Accounting',\n  'Dental Practices',\n  'Fitness & Wellness Studios',\n  'Automotive Sales & Service',\n];\n\nfunction buildMondayGuidance() {\n  return `No specific human-suggested topic is queued this time. Today's angle: niche-specific.\n\nPick ONE niche from this list that has not been recently covered -- cross-check the \"Topics already covered\" list below for both the niche name itself and any close synonym mentioned in a title or angle, not just an exact string match:\n${NICHES.map(n => `- ${n}`).join('\\n')}\n\nCombine that niche with ONE Noctix service pillar (${servicePillars}), and frame the entire post around a concrete implementation-intent angle for that specific niche -- e.g. \"AI voice agents for real estate agencies,\" not a generic voice-agent post that happens to mention real estate once. The title, meta_title, and keyword must reflect the niche explicitly: the niche name or a natural variant of it should appear in the keyword.`;\n}\n\nfunction buildWednesdayGuidance(rssHeadlines) {\n  return `No specific human-suggested topic is queued this time. Today's angle: AI news commentary.\n\nRecent AI industry headlines:\n${rssHeadlines}\n\nPick ONE specific, recent headline from the list above -- the most substantive and concrete one, not the vaguest. Explain what it actually means in plain terms (skip the hype framing from the original headline), then give a grounded, practical take aimed at an SMB owner who is evaluating automation for their business. Only connect it to a Noctix service pillar (${servicePillars}) if there is a real, specific connection -- do not force one in if there isn't.\n\nWrite entirely in your own words. Never copy or closely paraphrase sentences from the headline or its source -- this is commentary and analysis, not reporting.`;\n}\n\nfunction buildGeneralGuidance(rssHeadlines) {\n  return `No specific human-suggested topic is queued this time. Choose the best topic using the signals below, in this priority order:\n1. Recent AI industry news below -- only if something genuinely connects to a Noctix service and is worth a timely angle.\n2. Noctix's service pillars generally, filling a gap not yet covered.\n\nRecent AI industry headlines (use only if genuinely relevant to a Noctix service -- do not force a connection that isn't there):\n${rssHeadlines}`;\n}\n\nfunction buildNoIdeaGuidance(rssHeadlines) {\n  // Luxon weekday: 1 = Monday ... 7 = Sunday. $now is already in the\n  // workflow/instance timezone, matching how the \"3x a week\" schedule\n  // trigger's cron expression (\"0 9 * * 1,3,5\") itself gets evaluated.\n  const weekday = $now.weekday;\n  const hasRealHeadlines = typeof rssHeadlines === 'string' && rssHeadlines !== '(no recent items fetched)';\n\n  if (weekday === 1) {\n    return buildMondayGuidance();\n  }\n\n  if (weekday === 3 && hasRealHeadlines) {\n    return buildWednesdayGuidance(rssHeadlines);\n  }\n\n  // Friday, or any other day this happens to run on (manual test\n  // executions, a Wednesday with no RSS items fetched), falls back to the\n  // same general gap-filling logic as before.\n  return buildGeneralGuidance(rssHeadlines);\n}\n\nconst topicGuidance = hasIdea\n  ? `A human has specifically suggested this topic idea -- prioritize writing about this unless it's a near-duplicate of something already covered above: \"${ideaRow.idea}\" (source: ${ideaRow.source || 'manual'})`\n  : buildNoIdeaGuidance(rss);\n\nconst userPrompt = `Noctix's core service pillars: ${servicePillars}\n\n${topicGuidance}\n\nTopics already covered on the blog -- do NOT repeat these or pick a near-duplicate angle:\n${usedTopics}\n\nReal internal pages you may link to (pick 3-5 of these, and ONLY these -- never invent a URL). Every one you pick will be shown to the reader in a \"Related reading\" section on the published page, whether or not you also reference it inline, so pick pages that are genuinely relevant to this topic, not just to hit the count:\n${internalLinkList}\n\nTask:\n1. Pick ONE specific, narrow topic related to Noctix's services that is NOT already covered above, following the topic guidance given.\n2. Write a full blog post about it, 1000-1600 words, following this structure:\n   - The first 1-2 sentences must directly answer the core question a reader has, in plain language, before any setup or context. AI search engines (ChatGPT, Perplexity, Google AI Overviews) extract answers from roughly the first 500 words, so the direct answer cannot be buried.\n   - 4-7 H2 sections (use \"## \" markdown), each covering one concrete sub-point.\n   - Natural paragraph prose, not bullet-point-only content. Short paragraphs (2-4 sentences).\n   - A natural closing paragraph connecting the topic back to what Noctix builds, without being a hard sales pitch mid-article -- one clear mention of Noctix is enough.\n   - 3-5 FAQ question/answer pairs covering related questions a reader would still have (each answer 1-3 sentences).\n3. Propose 6-8 external links to genuinely well-known, authoritative sources (official documentation, established research or news organizations, well-known tool vendors) that support specific factual claims you make in the post. A validation step fetches every one of these URLs and drops any that don't resolve (dead link, 404, paywall, blocked request) before publishing, keeping up to 5 of the ones that do -- propose more candidates than you think you need, since a meaningful fraction will get filtered out. You do not need to weave every proposed link into the prose; 1-2 natural inline citations in the body is enough, the rest will still be listed for the reader in a \"Sources\" section on the published page. Never link to a company that competes directly with Noctix's automation-agency services. If you are not confident of the exact real URL for a source, use the organization's known root domain plus your best-effort path -- do not fabricate a specific statistic or quote to justify a link; only propose a link where the general claim is true regardless of the exact page.\n\nOutput this exact JSON shape:\n{\n  \"title\": \"string, compelling, under 65 characters\",\n  \"meta_title\": \"string, keyword near the front, under 60 characters\",\n  \"meta_description\": \"string, 140-160 characters, includes the target keyword\",\n  \"slug\": \"string, lowercase-hyphenated, under 60 characters\",\n  \"keyword\": \"string, the primary target keyword/phrase\",\n  \"secondary_keywords\": [\"string\", \"string\"],\n  \"description\": \"string, 1-2 sentence teaser for the blog index card\",\n  \"body\": \"string, the full post in markdown using ## for H2 headers, with internal links written as [anchor text](/blog/slug-here) and external links written as [anchor text](https://example.com/path) inline in the prose where relevant\",\n  \"faq\": [{\"question\": \"string\", \"answer\": \"string\"}],\n  \"internal_links\": [{\"slug\": \"string, matching one of the real pages listed above exactly\", \"anchor_text\": \"string\"}],\n  \"external_links\": [{\"url\": \"string\", \"anchor_text\": \"string\", \"reason\": \"string, one sentence on why this source\"}],\n  \"source_topic\": \"string, one sentence explaining why you picked this angle -- state explicitly whether it came from the human-suggested idea, AI news, a niche angle, or general reasoning\",\n  \"read_time_minutes\": integer\n}`;\n\nreturn [{\n  json: {\n    systemPrompt,\n    userPrompt,\n    queuedIdeaId: hasIdea ? ideaRow.id : null,\n  }\n}];"
+        "jsCode": "// Code node: \"Build generation prompt\"\n// Replaces the current node's jsCode in full. Self-contained change to\n// topic selection only -- the returned shape ({ systemPrompt, userPrompt,\n// queuedIdeaId }) is identical, so nothing downstream (OpenRouter call,\n// \"Parse and validate LLM output\", the JSON schema the model must return)\n// needs to change.\n//\n// What changed vs. the previous version: only how `topicGuidance` gets\n// built when no human idea is queued. The hasIdea branch is untouched --\n// a queued idea still wins regardless of what day it is.\n//\n// When no idea is queued, topic selection now depends on the day the\n// workflow actually runs (schedule: Mon/Wed/Fri 09:00):\n//   Monday    -> niche-specific angle (NICHES x a service pillar)\n//   Wednesday -> AI news commentary, RSS becomes the primary directive\n//                instead of an optional signal\n//   Friday (or any other day this runs on, e.g. a manual test execution)\n//                -> general gap-filling, same logic as before\n//\n// Day-of-week is read from $now (Luxon, in the workflow/instance timezone)\n// rather than `new Date()`, so it matches the same timezone the schedule\n// trigger's cron expression is evaluated in -- not whatever timezone the\n// underlying Node.js process happens to be in.\n\nconst recentPosts = $('Get recent posts').all().map(item => item.json);\nconst internalCandidates = $('Get internal link candidates').all().map(item => item.json);\nconst ideaRow = $('Get queued topic idea').first().json;\nconst hasIdea = ideaRow.has_idea === true;\n\nlet rss = '(skipped -- a queued idea took priority this run)';\n\nif (!hasIdea) {\n  try {\n    rss = $('Merge RSS items').first().json.rssHeadlines;\n  } catch (e) {\n    rss = '(no recent items fetched)';\n  }\n}\n\nconst usedTopics = recentPosts\n  .map(p => `- \"${p.title}\" (keyword: ${p.keyword}${p.source_topic ? `, angle: ${p.source_topic}` : ''})`)\n  .join('\\n') || '(none yet)';\n\nconst internalLinkList = internalCandidates\n  .map(p => `- /blog/${p.slug} -- \"${p.title}\"`)\n  .concat([\n    \"- /services -- Noctix's full services overview page\",\n    '- /case-studies -- Noctix client case studies',\n    '- /contact -- Book an automation audit',\n  ])\n  .join('\\n');\n\nconst servicePillars = [\n  'AI Voice Agents (inbound Voxie, outbound Voxo)',\n  'CRM & Workflow Automation',\n  'Lead Generation Systems',\n  'Marketing Automation',\n  'Dashboards & Reporting',\n  'Custom AI Tools',\n  'API Integrations',\n].join(', ');\n\nconst styleReference = `Most CRMs are clean for about three weeks. After that, fields go missing, leads get stuck in the wrong stage, and the pipeline stops reflecting reality. CRM automation is what keeps it usable.\n\nThe goal isn't to automate everything -- it's to remove the manual steps that always get skipped when the team is busy.`;\n\nconst systemPrompt = `You are a senior operations writer for Noctix AI, an AI automation agency that builds voice agents, CRM automations, workflow automations, lead generation systems, marketing automation, and dashboards for businesses in the US, UK, and Pakistan.\n\nYou write like an operator who has actually built these systems -- direct, concrete, no filler, no hype words like \"revolutionize\" or \"game-changing\" or \"unlock\". Short paragraphs. Real specifics over vague claims. This is the voice of an existing post on the site, match this tone exactly:\n\n\"\"\"\n${styleReference}\n\"\"\"\n\nYou are writing ONE new blog post. Output ONLY valid JSON matching the schema below -- no markdown code fences, no commentary before or after, just the JSON object.`;\n\n// ---------------------------------------------------------------------\n// Day-of-week content mix (only applies when no human idea is queued --\n// the hasIdea branch below always wins outright).\n// ---------------------------------------------------------------------\n\nconst NICHES = [\n  'Real Estate',\n  'Healthcare & Medical Practices',\n  'Legal & Law Firms',\n  'Home Services (HVAC, Plumbing, Electrical)',\n  'E-commerce & Retail',\n  'Hospitality & Restaurants',\n  'Financial Services & Accounting',\n  'Dental Practices',\n  'Fitness & Wellness Studios',\n  'Automotive Sales & Service',\n];\n\nfunction buildMondayGuidance() {\n  return `No specific human-suggested topic is queued this time. Today's angle: niche-specific.\n\nPick ONE niche from this list that has not been recently covered -- cross-check the \"Topics already covered\" list below for both the niche name itself and any close synonym mentioned in a title or angle, not just an exact string match:\n${NICHES.map(n => `- ${n}`).join('\\n')}\n\nCombine that niche with ONE Noctix service pillar (${servicePillars}), and frame the entire post around a concrete implementation-intent angle for that specific niche -- e.g. \"AI voice agents for real estate agencies,\" not a generic voice-agent post that happens to mention real estate once. The title, meta_title, and keyword must reflect the niche explicitly: the niche name or a natural variant of it should appear in the keyword.`;\n}\n\nfunction buildWednesdayGuidance(rssHeadlines) {\n  return `No specific human-suggested topic is queued this time. Today's angle: AI news commentary.\n\nRecent AI industry headlines, each with its real source URL:\n${rssHeadlines}\n\nPick ONE specific, recent headline from the list above -- the most substantive and concrete one, not the vaguest. Explain what it actually means in plain terms (skip the hype framing from the original headline), then give a grounded, practical take aimed at an SMB owner who is evaluating automation for their business. Only connect it to a Noctix service pillar (${servicePillars}) if there is a real, specific connection -- do not force one in if there isn't.\n\nInclude the source article's own URL (shown next to the headline you picked above) as one of your external_links entries, with a reason describing what it reports -- you already have the real URL for this one, no guessing required.\n\nWrite entirely in your own words. Never copy or closely paraphrase sentences from the headline or its source -- this is commentary and analysis, not reporting.`;\n}\n\nfunction buildGeneralGuidance(rssHeadlines) {\n  return `No specific human-suggested topic is queued this time. Choose the best topic using the signals below, in this priority order:\n1. Recent AI industry news below -- only if something genuinely connects to a Noctix service and is worth a timely angle.\n2. Noctix's service pillars generally, filling a gap not yet covered.\n\nRecent AI industry headlines (use only if genuinely relevant to a Noctix service -- do not force a connection that isn't there):\n${rssHeadlines}`;\n}\n\nfunction buildNoIdeaGuidance(rssHeadlines) {\n  // Luxon weekday: 1 = Monday ... 7 = Sunday. $now is already in the\n  // workflow/instance timezone, matching how the \"3x a week\" schedule\n  // trigger's cron expression (\"0 9 * * 1,3,5\") itself gets evaluated.\n  const weekday = $now.weekday;\n  const hasRealHeadlines = typeof rssHeadlines === 'string' && rssHeadlines !== '(no recent items fetched)';\n\n  if (weekday === 1) {\n    return buildMondayGuidance();\n  }\n\n  if (weekday === 3 && hasRealHeadlines) {\n    return buildWednesdayGuidance(rssHeadlines);\n  }\n\n  // Friday, or any other day this happens to run on (manual test\n  // executions, a Wednesday with no RSS items fetched), falls back to the\n  // same general gap-filling logic as before.\n  return buildGeneralGuidance(rssHeadlines);\n}\n\nconst topicGuidance = hasIdea\n  ? `A human has specifically suggested this topic idea -- prioritize writing about this unless it's a near-duplicate of something already covered above: \"${ideaRow.idea}\" (source: ${ideaRow.source || 'manual'})`\n  : buildNoIdeaGuidance(rss);\n\nconst userPrompt = `Noctix's core service pillars: ${servicePillars}\n\n${topicGuidance}\n\nTopics already covered on the blog -- do NOT repeat these or pick a near-duplicate angle:\n${usedTopics}\n\nReal internal pages you may link to (pick 3-5 of these, and ONLY these -- never invent a URL). Every one you pick will be shown to the reader in a \"Related reading\" section on the published page, whether or not you also reference it inline, so pick pages that are genuinely relevant to this topic, not just to hit the count:\n${internalLinkList}\n\nTask:\n1. Pick ONE specific, narrow topic related to Noctix's services that is NOT already covered above, following the topic guidance given.\n2. Write a full blog post about it, 1000-1600 words, following this structure:\n   - The first 1-2 sentences must directly answer the core question a reader has, in plain language, before any setup or context. AI search engines (ChatGPT, Perplexity, Google AI Overviews) extract answers from roughly the first 500 words, so the direct answer cannot be buried.\n   - 4-7 H2 sections (use \"## \" markdown), each covering one concrete sub-point.\n   - Natural paragraph prose, not bullet-point-only content. Short paragraphs (2-4 sentences).\n   - A natural closing paragraph connecting the topic back to what Noctix builds, without being a hard sales pitch mid-article -- one clear mention of Noctix is enough.\n   - 3-5 FAQ question/answer pairs covering related questions a reader would still have (each answer 1-3 sentences).\n3. Propose 6-8 external links to genuinely well-known, authoritative sources (official documentation, established research or news organizations, well-known tool vendors) that support specific factual claims you make in the post. A validation step fetches every one of these URLs and drops any that don't resolve (dead link, 404, paywall, blocked request) before publishing, keeping up to 5 of the ones that do -- propose more candidates than you think you need, since a meaningful fraction will get filtered out. You do not need to weave every proposed link into the prose; 1-2 natural inline citations in the body is enough, the rest will still be listed for the reader in a \"Sources\" section on the published page. Never link to a company that competes directly with Noctix's automation-agency services. If you are not confident of the exact real URL for a source, use the organization's known root domain plus your best-effort path -- do not fabricate a specific statistic or quote to justify a link; only propose a link where the general claim is true regardless of the exact page.\n\nOutput this exact JSON shape:\n{\n  \"title\": \"string, compelling, under 65 characters\",\n  \"meta_title\": \"string, keyword near the front, under 60 characters\",\n  \"meta_description\": \"string, 140-160 characters, includes the target keyword\",\n  \"slug\": \"string, lowercase-hyphenated, under 60 characters\",\n  \"keyword\": \"string, the primary target keyword/phrase\",\n  \"secondary_keywords\": [\"string\", \"string\"],\n  \"description\": \"string, 1-2 sentence teaser for the blog index card\",\n  \"body\": \"string, the full post in markdown using ## for H2 headers, with internal links written as [anchor text](/blog/slug-here) and external links written as [anchor text](https://example.com/path) inline in the prose where relevant\",\n  \"faq\": [{\"question\": \"string\", \"answer\": \"string\"}],\n  \"internal_links\": [{\"slug\": \"string, matching one of the real pages listed above exactly\", \"anchor_text\": \"string\"}],\n  \"external_links\": [{\"url\": \"string\", \"anchor_text\": \"string\", \"reason\": \"string, one sentence on why this source\"}],\n  \"source_topic\": \"string, one sentence explaining why you picked this angle -- state explicitly whether it came from the human-suggested idea, AI news, a niche angle, or general reasoning\",\n  \"read_time_minutes\": integer\n}`;\n\nreturn [{\n  json: {\n    systemPrompt,\n    userPrompt,\n    queuedIdeaId: hasIdea ? ideaRow.id : null,\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -199,12 +199,71 @@
     },
     {
       "parameters": {
+        "fieldToSplitOut": "external_links",
+        "options": {
+          "destinationFieldName": "candidate"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        5744,
+        208
+      ],
+      "id": "d4e6f8a0-1b3c-4d5e-9f7a-2b4c6d8e0f1a",
+      "name": "Split Out for Tavily Search"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: $json.candidate.reason, max_results: 3 }) }}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5968,
+        208
+      ],
+      "id": "e5f7a9b1-2c4d-4e6f-a08b-3c5d7e9f1a2b",
+      "name": "Tavily Search",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SET_YOUR_TAVILY_CREDENTIAL_ID",
+          "name": "Tavily HTTP Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node: \"Rebuild external links from Tavily results\"\n// Mode: Run Once for All Items\n//\n// Replaces the model's invented external_links URLs with real Tavily search\n// results -- one search per candidate, using the model's own `reason` field\n// as the query. Anything Tavily can't find a result for is dropped outright\n// rather than falling back to the model's original guessed URL, since the\n// entire point of this step is to stop shipping memory-invented links.\n//\n// Reassembles the full post object (everything from \"Parse and validate LLM\n// output\", untouched) with only external_links replaced, so the existing\n// \"Split Out External Links\" -> \"GET external link\" -> \"Validate external\n// links\" chain downstream needs zero changes -- it still does its own live\n// HTTP-status check on these Tavily results, since a search result can\n// still occasionally point to a page that's since gone down.\n\nconst SPLIT_OUT_NODE = 'Split Out for Tavily Search';\nconst post = $('Parse and validate LLM output').first().json;\n\nconst items = $input.all();\nconst externalLinks = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const response = items[i].json;\n  const candidate = $(SPLIT_OUT_NODE).itemMatching(i).json.candidate;\n\n  if (response.error) continue; // Tavily call itself failed -- drop this candidate\n\n  const results = Array.isArray(response.results) ? response.results : [];\n  const topResult = results[0];\n  if (!topResult || typeof topResult.url !== 'string' || !topResult.url) continue;\n\n  externalLinks.push({\n    url: topResult.url,\n    anchor_text: candidate.anchor_text,\n    reason: candidate.reason,\n  });\n}\n\nreturn [{ json: { ...post, external_links: externalLinks } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6192,
+        208
+      ],
+      "id": "f6a8b0c2-3d5e-4f7a-b19c-4d6e8f0a2b3c",
+      "name": "Rebuild external links from Tavily results"
+    },
+    {
+      "parameters": {
         "jsCode": "// Code node: \"Build insert SQL\"\n// Mode: Run Once for All Items (this workflow processes one post per run)\n//\n// This node's own immediate input is \"Validate external links\", which only\n// carries { valid_links, rejected_links, slack_message } -- not the post\n// itself. The generated post is read from \"Parse and validate LLM output\"\n// directly via node reference, and the *validated* external links (not the\n// model's raw, unvalidated proposal) are read from \"Validate external\n// links\".\n//\n// Fixes vs. the previous version of this node:\n//   1. Internal links: normalizes each l.slug instead of blindly\n//      prepending '/blog/', which produced /blog//blog/some-slug whenever\n//      the model already returned a pre-formatted target (it usually does\n//      -- see the internal-link candidate list built in \"Build generation\n//      prompt\", which already lists paths as \"/blog/actual-slug\").\n//   2. SQL: emits { query, values } with $1, $2, ... placeholders instead of\n//      building the statement with manual \".replace(/'/g, \"''\")\" escaping.\n//      Adds ON CONFLICT (slug) DO NOTHING + RETURNING, and word_count.\n//\n// Downstream wiring this requires:\n//   - \"Insert draft\" (Postgres, Execute Query): Query = {{ $json.query }},\n//     Query Parameters/Query Replacement = {{ $json.values }}, and\n//     \"Always Output Data\" ON (ON CONFLICT DO NOTHING returns zero rows on\n//     a duplicate slug -- without this the branch just stops).\n//   - The \"Insert succeeded?\" IF node after it branches on {{$json.slug}}.\n\nconst post = $('Parse and validate LLM output').first().json;\nconst validated = $('Validate external links').first().json;\n\nfunction normalizeInternalLink(rawSlug) {\n  if (typeof rawSlug !== 'string' || !rawSlug.trim()) return null;\n\n  const path = rawSlug.trim().replace(/^\\/+/, ''); // strip leading slashes\n\n  let normalized;\n  if (path.startsWith('blog/')) {\n    normalized = '/blog/' + path.slice('blog/'.length);\n  } else if (\n    path.startsWith('services') ||\n    path.startsWith('contact') ||\n    path.startsWith('case-studies')\n  ) {\n    normalized = '/' + path;\n  } else {\n    // No recognized prefix -- treat the whole value as a bare blog slug.\n    normalized = '/blog/' + path;\n  }\n\n  normalized = normalized.replace(/\\/{2,}/g, '/'); // collapse repeated slashes\n\n  return /^\\/[a-z0-9\\-\\/]+$/.test(normalized) ? normalized : null;\n}\n\nconst internalLinks = (Array.isArray(post.internal_links) ? post.internal_links : [])\n  .map((l) => {\n    const url = normalizeInternalLink(l && l.slug);\n    return url ? { url, anchor_text: l && l.anchor_text } : null;\n  })\n  .filter(Boolean);\n\n// Store what actually passed validation, not the model's raw proposal.\nconst externalLinks = (validated.valid_links || []).map((l) => ({\n  url: l.url,\n  anchor_text: l.anchor_text,\n}));\n\nconst bodyText = typeof post.body === 'string' ? post.body.trim() : '';\nconst wordCount = bodyText ? bodyText.split(/\\s+/).filter(Boolean).length : 0;\n\nconst COLUMNS = [\n  'slug',\n  'title',\n  'meta_title',\n  'meta_description',\n  'description',\n  'keyword',\n  'secondary_keywords',\n  'body',\n  'faq',\n  'internal_links',\n  'external_links',\n  'author_name',\n  'read_time',\n  'status',\n  'approval_token',\n  'source_topic',\n  'word_count',\n];\n\nconst COLUMN_CASTS = {\n  secondary_keywords: 'text[]',\n  faq: 'jsonb',\n  internal_links: 'jsonb',\n  external_links: 'jsonb',\n};\n\nconst row = {\n  slug: post.slug,\n  title: post.title,\n  meta_title: post.meta_title,\n  meta_description: post.meta_description,\n  description: post.description,\n  keyword: post.keyword,\n  secondary_keywords: Array.isArray(post.secondary_keywords) ? post.secondary_keywords : [],\n  body: post.body,\n  faq: JSON.stringify(post.faq ?? []),\n  internal_links: JSON.stringify(internalLinks),\n  external_links: JSON.stringify(externalLinks),\n  author_name: 'Ayaan Awan',\n  read_time: post.read_time,\n  status: 'draft',\n  approval_token: post.approval_token,\n  source_topic: post.source_topic,\n  word_count: wordCount,\n};\n\nconst values = COLUMNS.map((col) => row[col]);\nconst placeholders = COLUMNS.map((col, i) => {\n  const cast = COLUMN_CASTS[col];\n  return cast ? `$${i + 1}::${cast}` : `$${i + 1}`;\n}).join(', ');\n\nconst query = `\nINSERT INTO blog_posts\n  (${COLUMNS.join(', ')})\nVALUES (${placeholders})\nON CONFLICT (slug) DO NOTHING\nRETURNING id, slug, approval_token\n`;\n\nreturn [\n  {\n    json: {\n      query,\n      values,\n      queued_idea_id: post.queued_idea_id,\n      internal_links_normalized: internalLinks,\n    },\n  },\n];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        6416,
+        7088,
         208
       ],
       "id": "61e28598-f4dd-475e-9f60-7ab18f46c447",
@@ -221,7 +280,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        6640,
+        7312,
         208
       ],
       "id": "a331923f-296a-419d-bc31-00926f6dd307",
@@ -261,7 +320,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        6864,
+        7536,
         208
       ],
       "id": "b2c4e8a1-3f5d-4a6e-9c1b-7d8e2f4a5b6c",
@@ -272,7 +331,7 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        6864,
+        7536,
         400
       ],
       "id": "c3d5f9b2-4a6e-4b7f-8d2c-1e3f5a6b7c8d",
@@ -285,7 +344,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        7088,
+        7760,
         208
       ],
       "id": "aa0cecbb-5ee5-4d8b-b6bb-8e5e0f575ec3",
@@ -300,7 +359,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        7312,
+        7984,
         208
       ],
       "id": "ccafc56b-2864-4b46-a649-21d3310ede06",
@@ -319,7 +378,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        7536,
+        8208,
         208
       ],
       "id": "8d15b599-d053-4d47-9492-440edcfdb876",
@@ -339,7 +398,7 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.5,
       "position": [
-        7760,
+        8432,
         208
       ],
       "id": "ca916e1d-085a-42b7-9584-ecc3eb1dfb97",
@@ -362,7 +421,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        5744,
+        6416,
         208
       ],
       "id": "82835e98-e480-4ff3-b180-e95e85d26229",
@@ -394,7 +453,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        5968,
+        6640,
         208
       ],
       "id": "60de2fb6-cbd5-477c-8037-e03e50431e85",
@@ -409,7 +468,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        6192,
+        6864,
         208
       ],
       "id": "f0918c58-c6fa-4b4b-8b7e-2b6048978122",
@@ -527,7 +586,7 @@
       "main": [
         [
           {
-            "node": "Split Out External Links",
+            "node": "Split Out for Tavily Search",
             "type": "main",
             "index": 0
           }
@@ -634,6 +693,39 @@
         [
           {
             "node": "Build insert SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out for Tavily Search": {
+      "main": [
+        [
+          {
+            "node": "Tavily Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tavily Search": {
+      "main": [
+        [
+          {
+            "node": "Rebuild external links from Tavily results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rebuild external links from Tavily results": {
+      "main": [
+        [
+          {
+            "node": "Split Out External Links",
             "type": "main",
             "index": 0
           }

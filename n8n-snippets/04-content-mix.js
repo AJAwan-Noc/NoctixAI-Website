@@ -104,10 +104,12 @@ Combine that niche with ONE Noctix service pillar (${servicePillars}), and frame
 function buildWednesdayGuidance(rssHeadlines) {
   return `No specific human-suggested topic is queued this time. Today's angle: AI news commentary.
 
-Recent AI industry headlines:
+Recent AI industry headlines, each with its real source URL:
 ${rssHeadlines}
 
 Pick ONE specific, recent headline from the list above -- the most substantive and concrete one, not the vaguest. Explain what it actually means in plain terms (skip the hype framing from the original headline), then give a grounded, practical take aimed at an SMB owner who is evaluating automation for their business. Only connect it to a Noctix service pillar (${servicePillars}) if there is a real, specific connection -- do not force one in if there isn't.
+
+Include the source article's own URL (shown next to the headline you picked above) as one of your external_links entries, with a reason describing what it reports -- you already have the real URL for this one, no guessing required.
 
 Write entirely in your own words. Never copy or closely paraphrase sentences from the headline or its source -- this is commentary and analysis, not reporting.`;
 }
