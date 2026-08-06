@@ -133,6 +133,11 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
         </div>
       )}
 
+      <p className="mt-3 text-sm text-foreground/50">
+        Written and reviewed by Ayaan Awan, founder of Noctix AI. Drafted with AI assistance,
+        edited and fact-checked by a human before publication.
+      </p>
+
       {post.faq?.length > 0 && (
         <div className="mt-16 space-y-6">
           <h2 className="font-display text-2xl font-semibold tracking-tight">

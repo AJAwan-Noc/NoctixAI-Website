@@ -13,6 +13,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SavingsCalculatorRouteImport } from './routes/savings-calculator'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AutomationPlaybookRouteImport } from './routes/automation-playbook'
@@ -44,6 +45,11 @@ const SavingsCalculatorRoute = SavingsCalculatorRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/automation-playbook': typeof AutomationPlaybookRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/savings-calculator': typeof SavingsCalculatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/automation-playbook': typeof AutomationPlaybookRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/savings-calculator': typeof SavingsCalculatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/automation-playbook': typeof AutomationPlaybookRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/llms.txt': typeof LlmsDottxtRoute
   '/privacy': typeof PrivacyRoute
   '/savings-calculator': typeof SavingsCalculatorRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/automation-playbook'
     | '/contact'
     | '/faq'
+    | '/llms.txt'
     | '/privacy'
     | '/savings-calculator'
     | '/sitemap.xml'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/automation-playbook'
     | '/contact'
     | '/faq'
+    | '/llms.txt'
     | '/privacy'
     | '/savings-calculator'
     | '/sitemap.xml'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/automation-playbook'
     | '/contact'
     | '/faq'
+    | '/llms.txt'
     | '/privacy'
     | '/savings-calculator'
     | '/sitemap.xml'
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   AutomationPlaybookRoute: typeof AutomationPlaybookRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
   PrivacyRoute: typeof PrivacyRoute
   SavingsCalculatorRoute: typeof SavingsCalculatorRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -361,6 +381,7 @@ const rootRouteChildren: RootRouteChildren = {
   AutomationPlaybookRoute: AutomationPlaybookRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
   PrivacyRoute: PrivacyRoute,
   SavingsCalculatorRoute: SavingsCalculatorRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
