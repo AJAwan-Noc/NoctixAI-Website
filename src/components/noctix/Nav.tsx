@@ -17,6 +17,7 @@ const serviceSubLinks = [
   { to: "/services/document-invoice-ai", label: "Document & Invoice AI" },
   { to: "/services/dashboards-reporting", label: "Dashboards & Reporting" },
   { to: "/services/custom-ai-tools", label: "Custom AI Tools" },
+  { to: "/services/n8n-consulting", label: "n8n Consulting" },
 ];
 
 const links: { to: string; label: string; exact?: boolean }[] = [

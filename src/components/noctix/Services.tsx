@@ -92,6 +92,18 @@ const services = [
     body: "Internal tools, agents, and API integrations built for your specific business processes — no off-the-shelf hacks.",
     points: ["Internal apps", "API-first builds", "Multi-agent systems", "Private LLM stacks"],
   },
+  {
+    code: "S13",
+    slug: "n8n-consulting",
+    title: "n8n Consulting",
+    body: "Queue mode, workers, error workflows, monitoring. Zapier and Make migrations included.",
+    points: [
+      "Queue mode rebuild",
+      "Zapier / Make migration",
+      "Error workflow wiring",
+      "Production monitoring",
+    ],
+  },
 ];
 
 export function Services() {
@@ -105,7 +117,7 @@ export function Services() {
               <span className="h-1.5 w-1.5 bg-[var(--lime)]" /> 02 — Systems
             </div>
             <h2 className="font-display text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.03em]">
-              Twelve modules.
+              Thirteen modules.
               <br />
               One operating layer.
             </h2>
@@ -118,7 +130,16 @@ export function Services() {
 
         <div className="grid grid-cols-1 gap-px bg-foreground/10 md:grid-cols-2 lg:grid-cols-3">
           {services.map((s, i) => (
-            <ServiceCard key={s.code} {...s} index={i} />
+            // col-span-full on a lone trailing item stops the container's own
+            // background from bleeding through the row's unclaimed columns.
+            // Assumes exactly one orphan in the last row — revisit the math
+            // if a future addition leaves more than one.
+            <ServiceCard
+              key={s.code}
+              {...s}
+              index={i}
+              spanFull={i === services.length - 1 && services.length % 3 !== 0}
+            />
           ))}
         </div>
       </div>
@@ -133,6 +154,7 @@ function ServiceCard({
   body,
   points,
   index,
+  spanFull,
 }: {
   code: string;
   slug: string;
@@ -140,6 +162,7 @@ function ServiceCard({
   body: string;
   points: string[];
   index: number;
+  spanFull?: boolean;
 }) {
   return (
     <motion.div
@@ -147,8 +170,13 @@ function ServiceCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5, delay: (index % 3) * 0.06 }}
+      className={spanFull ? "col-span-full" : undefined}
     >
-      <Link to="/services/$slug" params={{ slug }}>
+      <Link
+        to="/services/$slug"
+        params={{ slug }}
+        className={spanFull ? "mx-auto block max-w-sm" : "block"}
+      >
         <MagicCard className="group relative flex min-h-[340px] flex-col justify-between bg-background/60 p-8 transition-colors">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
