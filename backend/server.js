@@ -96,6 +96,7 @@ const allowedFields = [
   "timezone",
   "company_website_confirm",
   "meta_event_id",
+  "marketing_consent",
 ];
 
 function isValidEmail(email) {
@@ -122,6 +123,12 @@ function validateAndCleanForm(body) {
   const cleaned = {};
 
   for (const field of allowedFields) {
+    if (field === "marketing_consent") {
+      // Fail closed: anything but a literal boolean true is treated as no consent.
+      cleaned.marketing_consent = body.marketing_consent === true;
+      continue;
+    }
+
     const value = cleanStringField(body[field]);
 
     if (value === null) {
@@ -163,6 +170,7 @@ function validateAndCleanForm(body) {
     timezone: cleaned.timezone,
     company_website_confirm: cleaned.company_website_confirm,
     meta_event_id: cleaned.meta_event_id,
+    marketing_consent: cleaned.marketing_consent,
     submitted_at: new Date().toISOString(),
   };
 }
@@ -295,7 +303,9 @@ app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
       show_booking: true,
     });
 
-    sendMetaCapiLeadEvent(payload, req);
+    if (payload.marketing_consent === true) {
+      sendMetaCapiLeadEvent(payload, req);
+    }
     return;
   } catch (error) {
     if (error.name === "TimeoutError") console.error("n8n webhook timed out");
