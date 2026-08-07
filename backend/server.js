@@ -232,6 +232,8 @@ async function sendMetaCapiLeadEvent(payload, req) {
 
     if (!response.ok) {
       console.error("Meta CAPI event rejected:", response.status, await response.text());
+    } else {
+      console.log("[CAPI] Lead event sent, meta response:", response.status, await response.text());
     }
   } catch (error) {
     console.error("Meta CAPI event failed:", error.message);
