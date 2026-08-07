@@ -59,7 +59,7 @@ function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-foreground">Preferences.</strong> Theme preference and your
-                cookie choice, stored locally on your device.
+                cookie choices, stored locally on your device.
               </li>
             </ul>
           </Section>
@@ -70,27 +70,37 @@ function PrivacyPage() {
           </Section>
 
           <Section title="4. Cookies & local storage" id="cookies">
-            We use a small number of first-party items stored on your device. We do not use
-            third-party advertising or cross-site tracking cookies.
+            We use a small number of first-party items stored on your device, plus optional
+            analytics and advertising cookies that only load if you allow them.
             <ul className="mt-3 list-disc pl-5 space-y-2">
               <li>
                 <code className="font-mono text-xs text-foreground">noctix-theme</code> — remembers
-                your light/dark preference.
+                your light/dark preference. Strictly necessary.
               </li>
               <li>
-                <code className="font-mono text-xs text-foreground">noctix-cookie-consent</code> —
-                remembers your response to the cookie banner so we don't ask again.
+                <code className="font-mono text-xs text-foreground">noctix-consent-v2</code> —
+                remembers your analytics and marketing cookie choices so we don't ask again.
+                Strictly necessary.
+              </li>
+              <li>
+                <strong className="text-foreground">Analytics</strong> — helps us understand which
+                pages are useful. Only loads if you accept analytics cookies in the banner.
+              </li>
+              <li>
+                <strong className="text-foreground">Advertising measurement</strong> — helps us
+                measure ad performance. Only loads if you accept marketing cookies.
               </li>
             </ul>
             <p className="mt-3">
-              You can clear these any time via your browser's site-data controls.
+              You can change your choice any time via the cookie banner, or clear these items via
+              your browser's site-data controls.
             </p>
           </Section>
 
           <Section title="5. Third parties">
-            We may use reputable infrastructure providers to host the site and deliver email. These
-            providers process data on our behalf under their own security commitments. We will
-            update this section if we add analytics or other third-party tools.
+            We may use reputable infrastructure providers to host the site and deliver email, and,
+            where you've consented, analytics and advertising measurement providers. These providers
+            process data on our behalf under their own security commitments.
           </Section>
 
           <Section title="6. Your rights">
