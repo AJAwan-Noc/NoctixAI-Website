@@ -1,6 +1,7 @@
 import { useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { track } from "@/lib/analytics";
 
 const FREEBIE_ENDPOINT = "https://api.noctix.app/api/freebie-request";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,6 +43,9 @@ export function FreebieForm() {
         // localStorage unavailable -- not critical, teaser will just show again
       }
 
+      if (!data.limited) {
+        track("guide_request");
+      }
       setState(data.limited ? "limited" : "success");
     } catch (err) {
       setState("error");

@@ -5,6 +5,7 @@ import { SiteShell } from "@/components/noctix/SiteShell";
 import { AuroraText } from "@/components/ui/aurora-text";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { SimpleLeadForm } from "@/components/noctix/SimpleLeadForm";
+import { track } from "@/lib/analytics";
 
 export const Route = createFileRoute("/savings-calculator")({
   head: () => ({
@@ -126,7 +127,13 @@ function SavingsCalculatorPage() {
               <button
                 type="button"
                 disabled={!canCalculate}
-                onClick={() => setShowResult(true)}
+                onClick={() => {
+                  track("calculator_complete", {
+                    weekly_hours: weeklyHours,
+                    hourly_rate: hourlyRate,
+                  });
+                  setShowResult(true);
+                }}
                 className="inline-flex items-center gap-2 bg-[var(--lime)] px-6 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground disabled:cursor-not-allowed disabled:opacity-40 hover:bg-[var(--lime-glow)]"
               >
                 Calculate my savings -&gt;

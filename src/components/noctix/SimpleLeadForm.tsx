@@ -1,6 +1,7 @@
 import { useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { newEventId, track } from "@/lib/analytics";
 
 const WEBSITE_FORM_ENDPOINT = "https://api.noctix.app/api/website-form-filled";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,6 +73,7 @@ export function SimpleLeadForm({
     setErrorField(null);
     setState("submitting");
 
+    const metaEventId = newEventId();
     const payload = {
       name: name.trim(),
       email: email.trim(),
@@ -84,6 +86,7 @@ export function SimpleLeadForm({
       message: (extras.message ?? "").trim(),
       timezone: getBrowserTimezone(),
       company_website_confirm: "",
+      meta_event_id: metaEventId,
     };
 
     try {
@@ -96,6 +99,7 @@ export function SimpleLeadForm({
       if (!response.ok || data.success !== true) {
         throw new Error(data.message || "Submission failed");
       }
+      track("lead_submit", { eventId: metaEventId, service_needed: serviceNeeded });
       setState("success");
     } catch {
       setState("error");

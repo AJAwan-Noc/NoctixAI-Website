@@ -95,6 +95,7 @@ const allowedFields = [
   "message",
   "timezone",
   "company_website_confirm",
+  "meta_event_id",
 ];
 
 function isValidEmail(email) {
@@ -138,6 +139,10 @@ function validateAndCleanForm(body) {
     return null;
   }
 
+  if (cleaned.meta_event_id.length > 64) {
+    return null;
+  }
+
   cleaned.email = cleaned.email.toLowerCase();
 
   if (!isValidEmail(cleaned.email)) {
@@ -157,8 +162,72 @@ function validateAndCleanForm(body) {
     message: cleaned.message,
     timezone: cleaned.timezone,
     company_website_confirm: cleaned.company_website_confirm,
+    meta_event_id: cleaned.meta_event_id,
     submitted_at: new Date().toISOString(),
   };
+}
+
+function sha256Hex(value) {
+  return crypto.createHash("sha256").update(value).digest("hex");
+}
+
+function normalizePhoneDigits(phone) {
+  const digits = phone.replace(/\D/g, "");
+  return digits || null;
+}
+
+// Fire-and-forget: must never block or fail the caller's response.
+async function sendMetaCapiLeadEvent(payload, req) {
+  if (!process.env.META_PIXEL_ID || !process.env.META_CAPI_TOKEN) {
+    return;
+  }
+
+  try {
+    const userData = {
+      client_ip_address: clientKey(req),
+      client_user_agent: req.get("user-agent") || "",
+    };
+
+    if (payload.email) {
+      userData.em = [sha256Hex(payload.email)];
+    }
+
+    const normalizedPhone = payload.phone ? normalizePhoneDigits(payload.phone) : null;
+    if (normalizedPhone) {
+      userData.ph = [sha256Hex(normalizedPhone)];
+    }
+
+    const event = {
+      event_name: "Lead",
+      event_time: Math.floor(Date.now() / 1000),
+      action_source: "website",
+      user_data: userData,
+    };
+
+    if (payload.meta_event_id) {
+      event.event_id = payload.meta_event_id;
+    }
+
+    const referer = req.get("referer");
+    if (referer) {
+      event.event_source_url = referer;
+    }
+
+    const url = `https://graph.facebook.com/v21.0/${process.env.META_PIXEL_ID}/events?access_token=${process.env.META_CAPI_TOKEN}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: [event] }),
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      console.error("Meta CAPI event rejected:", response.status, await response.text());
+    }
+  } catch (error) {
+    console.error("Meta CAPI event failed:", error.message);
+  }
 }
 
 app.get("/health", (req, res) => {
@@ -220,11 +289,14 @@ app.post("/api/website-form-filled", formRateLimiter, async (req, res) => {
       return res.status(500).json(safeErrorResponse);
     }
 
-    return res.json({
+    res.json({
       success: true,
       message: "Lead submitted successfully",
       show_booking: true,
     });
+
+    sendMetaCapiLeadEvent(payload, req);
+    return;
   } catch (error) {
     if (error.name === "TimeoutError") console.error("n8n webhook timed out");
     return res.status(500).json(safeErrorResponse);

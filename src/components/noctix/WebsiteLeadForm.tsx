@@ -1,6 +1,7 @@
 import { useEffect, useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { newEventId, track } from "@/lib/analytics";
 
 const WEBSITE_FORM_ENDPOINT = "https://api.noctix.app/api/website-form-filled";
 
@@ -20,6 +21,7 @@ type WebsiteFormPayload = {
   message: string;
   timezone: string;
   company_website_confirm: string;
+  meta_event_id: string;
 };
 
 type WebsiteFormResponse = {
@@ -137,6 +139,7 @@ export function WebsiteLeadForm({
     if (isSubmitting) return;
 
     const formData = new FormData(event.currentTarget);
+    const metaEventId = newEventId();
     const payload: WebsiteFormPayload = {
       name: readFormValue(formData, "name"),
       email: readFormValue(formData, "email"),
@@ -149,6 +152,7 @@ export function WebsiteLeadForm({
       message: readFormValue(formData, "message"),
       timezone: readFormValue(formData, "timezone") || getBrowserTimezone(),
       company_website_confirm: readFormValue(formData, "company_website_confirm"),
+      meta_event_id: metaEventId,
     };
 
     const nextErrors = validatePayload(payload);
@@ -175,6 +179,7 @@ export function WebsiteLeadForm({
         throw new Error(data.message || "Lead submission failed");
       }
 
+      track("lead_submit", { eventId: metaEventId, service_needed: payload.service_needed });
       setSubmitState("success");
     } catch {
       setSubmitState("error");

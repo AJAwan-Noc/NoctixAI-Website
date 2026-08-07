@@ -12,6 +12,8 @@ import type { ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { ThemeProvider, noFlashScript } from "@/components/noctix/ThemeProvider";
 import { CookieConsent } from "@/components/noctix/CookieConsent";
+import { Analytics } from "@/components/noctix/Analytics";
+import { consentDefaultScript } from "@/lib/analytics";
 import { SITE, canonical, ogImage } from "@/lib/seo";
 import { JsonLd } from "@/lib/json-ld";
 import { organizationSchema, websiteSchema } from "@/lib/schema";
@@ -130,6 +132,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />
+        <script dangerouslySetInnerHTML={{ __html: consentDefaultScript }} />
         <HeadContent />
       </head>
       <body>
@@ -154,6 +157,7 @@ function RootComponent() {
       <ThemeProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <Analytics />
         <CookieConsent />
       </ThemeProvider>
     </QueryClientProvider>
