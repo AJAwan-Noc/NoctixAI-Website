@@ -122,6 +122,7 @@ export function sendPageView(pathname: string) {
 // Loads gated scripts if consent already covers them, and on later grants so nothing needs a reload.
 export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void): () => void {
   if (hasConsent("analytics")) {
+    gtag("consent", "update", { analytics_storage: "granted" });
     loadGtagScript();
     onGrant("analytics");
   }
