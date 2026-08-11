@@ -73,6 +73,9 @@ function loadGtagScript() {
   const script = document.createElement("script");
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+  console.log("[Analytics] loadGtagScript: appending script, src =", script.src);
+  script.onload = () => console.log("[Analytics] gtag script onload fired:", script.src);
+  script.onerror = (err) => console.log("[Analytics] gtag script onerror fired:", script.src, err);
   document.head.appendChild(script);
 }
 
@@ -112,18 +115,23 @@ function loadFbqScript() {
 export function sendPageView(pathname: string) {
   if (!hasConsent("analytics")) return;
   loadGtagScript();
-  gtag("event", "page_view", {
+  const params = {
     page_path: pathname,
     page_location: typeof window !== "undefined" ? window.location.href : undefined,
     page_title: typeof document !== "undefined" ? document.title : undefined,
-  });
+  };
+  console.log("[Analytics] sendPageView: firing gtag('event', 'page_view', ...) with", params);
+  gtag("event", "page_view", params);
 }
 
 // Loads gated scripts if consent already covers them, and on later grants so nothing needs a reload.
 export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void): () => void {
   if (hasConsent("analytics")) {
+    console.log("[Analytics] initAnalytics: hasConsent('analytics') branch entered");
     gtag("consent", "update", { analytics_storage: "granted" });
+    console.log("[Analytics] initAnalytics: gtag('consent','update',...) ran");
     loadGtagScript();
+    console.log("[Analytics] initAnalytics: loadGtagScript() invoked");
     onGrant("analytics");
   }
   if (hasConsent("marketing")) {
