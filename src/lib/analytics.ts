@@ -74,7 +74,10 @@ function loadGtagScript() {
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
   console.log("[Analytics] loadGtagScript: appending script, src =", script.src);
-  script.onload = () => console.log("[Analytics] gtag script onload fired:", script.src);
+  script.onload = () => {
+    console.log("[Analytics] gtag script onload fired:", script.src);
+    console.log("[Analytics] dataLayer at onload:", JSON.stringify(window.dataLayer));
+  };
   script.onerror = (err) => console.log("[Analytics] gtag script onerror fired:", script.src, err);
   document.head.appendChild(script);
 }
@@ -117,7 +120,7 @@ export function sendPageView(pathname: string) {
   loadGtagScript();
   const params = {
     page_path: pathname,
-    page_location: typeof window !== "undefined" ? window.location.href : undefined,
+    page_location: typeof window !== "undefined" ? `${window.location.origin}${pathname}` : undefined,
     page_title: typeof document !== "undefined" ? document.title : undefined,
   };
   console.log("[Analytics] sendPageView: firing gtag('event', 'page_view', ...) with", params);
