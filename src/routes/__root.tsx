@@ -131,18 +131,6 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* TEMPORARY — raw unconditional GA4 tag for diagnostic testing only. DOES NOT respect consent. MUST be removed and reverted to the consent-gated Analytics component before this branch is considered done. */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-2914TGYCSG"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-2914TGYCSG');
-`,
-          }}
-        />
         <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />
         <script dangerouslySetInnerHTML={{ __html: consentDefaultScript }} />
         <HeadContent />
