@@ -7,7 +7,7 @@ export type ConversionEvent =
   | "booking_confirmed"
   | "service_page_engaged";
 
-export const GA_MEASUREMENT_ID = "G-6XLEB0YVWY";
+export const GA_MEASUREMENT_ID = "G-2914TGYCSG";
 export const META_PIXEL_ID = "2177112686555151";
 
 const EVENT_VALUE: Partial<Record<ConversionEvent, number>> = {
