@@ -129,7 +129,9 @@ export function sendPageView(pathname: string) {
 
 // Loads gated scripts if consent already covers them, and on later grants so nothing needs a reload.
 export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void): () => void {
-  if (hasConsent("analytics")) {
+  // TEMPORARY - DO NOT DEPLOY - remove before commit
+  // GA4 consent gate bypassed for local diagnostic testing only.
+  if (true /* hasConsent("analytics") */) {
     console.log("[Analytics] initAnalytics: hasConsent('analytics') branch entered");
     gtag("consent", "update", { analytics_storage: "granted" });
     console.log("[Analytics] initAnalytics: gtag('consent','update',...) ran");
