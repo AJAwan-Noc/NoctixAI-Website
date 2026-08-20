@@ -13,7 +13,7 @@ import appCss from "../styles.css?url";
 import { ThemeProvider, noFlashScript } from "@/components/noctix/ThemeProvider";
 import { CookieConsent } from "@/components/noctix/CookieConsent";
 import { Analytics } from "@/components/noctix/Analytics";
-import { consentDefaultScript } from "@/lib/analytics";
+import { consentDefaultScript, gtagBootstrapScript, GA_MEASUREMENT_ID } from "@/lib/analytics";
 import { SITE, canonical, ogImage } from "@/lib/seo";
 import { JsonLd } from "@/lib/json-ld";
 import { organizationSchema, websiteSchema } from "@/lib/schema";
@@ -133,6 +133,8 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: noFlashScript }} />
         <script dangerouslySetInnerHTML={{ __html: consentDefaultScript }} />
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}></script>
+        <script dangerouslySetInnerHTML={{ __html: gtagBootstrapScript }} />
         <HeadContent />
       </head>
       <body>

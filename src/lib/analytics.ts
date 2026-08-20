@@ -43,6 +43,16 @@ gtag('consent', 'default', {
 });
 `;
 
+// Inject into <head> immediately after consentDefaultScript so gtag.js and its config call run
+// unconditionally on every load (Google's Advanced Consent Mode pattern) — consent signals set
+// above govern what the tag does (cookieless ping vs full tracking), not whether it loads at all.
+export const gtagBootstrapScript = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){ dataLayer.push(arguments); }
+gtag('js', new Date());
+gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
+`;
+
 function gtag(...args: unknown[]) {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
@@ -59,27 +69,6 @@ export function newEventId(): string {
     const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
-}
-
-let gtagScriptRequested = false;
-
-function loadGtagScript() {
-  if (gtagScriptRequested || typeof document === "undefined") return;
-  gtagScriptRequested = true;
-
-  gtag("js", new Date());
-  gtag("config", GA_MEASUREMENT_ID, { send_page_view: false });
-
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-  console.log("[Analytics] loadGtagScript: appending script, src =", script.src);
-  script.onload = () => {
-    console.log("[Analytics] gtag script onload fired:", script.src);
-    console.log("[Analytics] dataLayer at onload:", JSON.stringify(window.dataLayer));
-  };
-  script.onerror = (err) => console.log("[Analytics] gtag script onerror fired:", script.src, err);
-  document.head.appendChild(script);
 }
 
 let fbqScriptRequested = false;
@@ -116,8 +105,6 @@ function loadFbqScript() {
 }
 
 export function sendPageView(pathname: string) {
-  if (!hasConsent("analytics")) return;
-  loadGtagScript();
   const params = {
     page_path: pathname,
     page_location: typeof window !== "undefined" ? `${window.location.origin}${pathname}` : undefined,
@@ -133,8 +120,6 @@ export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void
     console.log("[Analytics] initAnalytics: hasConsent('analytics') branch entered");
     gtag("consent", "update", { analytics_storage: "granted" });
     console.log("[Analytics] initAnalytics: gtag('consent','update',...) ran");
-    loadGtagScript();
-    console.log("[Analytics] initAnalytics: loadGtagScript() invoked");
     onGrant("analytics");
   }
   if (hasConsent("marketing")) {
@@ -145,7 +130,6 @@ export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void
   return onConsentChange((state) => {
     if (state.analytics) {
       gtag("consent", "update", { analytics_storage: "granted" });
-      loadGtagScript();
       onGrant("analytics");
     }
     if (state.marketing) {
@@ -165,7 +149,6 @@ export function track(event: ConversionEvent, params: Record<string, unknown> = 
   if (typeof window === "undefined") return;
 
   if (hasConsent("analytics")) {
-    loadGtagScript();
     const value = EVENT_VALUE[event];
     gtag("event", event, {
       ...(value !== undefined ? { value, currency: "USD" } : {}),
