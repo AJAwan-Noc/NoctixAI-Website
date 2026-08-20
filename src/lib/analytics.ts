@@ -120,6 +120,7 @@ export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void
     console.log("[Analytics] initAnalytics: hasConsent('analytics') branch entered");
     gtag("consent", "update", { analytics_storage: "granted" });
     console.log("[Analytics] initAnalytics: gtag('consent','update',...) ran");
+    sendPageView(window.location.pathname);
     onGrant("analytics");
   }
   if (hasConsent("marketing")) {
@@ -130,6 +131,7 @@ export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void
   return onConsentChange((state) => {
     if (state.analytics) {
       gtag("consent", "update", { analytics_storage: "granted" });
+      sendPageView(window.location.pathname);
       onGrant("analytics");
     }
     if (state.marketing) {
