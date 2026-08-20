@@ -53,10 +53,13 @@ gtag('js', new Date());
 gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
 `;
 
-function gtag(...args: unknown[]) {
+function gtag(..._args: unknown[]) {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push(args);
+  // gtag.js only processes Arguments objects as commands — do not
+  // change this to push a spread/array, that silently breaks tracking.
+  // eslint-disable-next-line prefer-rest-params
+  window.dataLayer.push(arguments as unknown as unknown[]);
 }
 
 /** Client-side UUID for the lead_submit browser/server event dedup pair. */
