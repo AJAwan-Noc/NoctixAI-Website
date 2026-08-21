@@ -18,7 +18,7 @@ export function Manifesto() {
       <DotPattern className="opacity-[0.05]" cr={1} width={32} height={32} glow />
       <div className="pointer-events-none absolute inset-0 grid-overlay opacity-10" />
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="mb-12 md:mb-16 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+        <div className="mb-12 md:mb-16 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
           <span className="h-1.5 w-1.5 bg-[var(--lime)]" /> 01 — Manifesto
         </div>
         <div className="flex flex-col gap-10">

@@ -62,7 +62,7 @@ function AboutPage() {
           transition={{ duration: 0.6 }}
           className="relative"
         >
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             About — Noctix AI
           </div>
           <h1 className="font-display text-[clamp(2.4rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.03em]">
@@ -88,13 +88,13 @@ function AboutPage() {
           {principles.map((p) => (
             <MagicCard key={p.code} className="bg-background/60">
               <div className="p-6 sm:p-8">
-                <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+                <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
                   {p.code}
                 </div>
                 <h3 className="mt-4 font-display text-2xl font-semibold tracking-tight">
                   {p.title}
                 </h3>
-                <p className="mt-3 text-sm text-foreground/55">{p.body}</p>
+                <p className="mt-3 text-sm text-foreground/70">{p.body}</p>
               </div>
             </MagicCard>
           ))}
@@ -102,7 +102,7 @@ function AboutPage() {
 
         <div className="relative mt-12 overflow-hidden border border-foreground/10 bg-background/40 p-6 sm:p-10 md:mt-16">
           <BorderBeam size={260} duration={14} />
-          <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             Ready when you are
           </div>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">

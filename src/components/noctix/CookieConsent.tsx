@@ -84,11 +84,11 @@ export function CookieConsent() {
             <button
               onClick={rejectAll}
               aria-label="Dismiss (rejects optional cookies)"
-              className="absolute right-3 top-3 text-foreground/40 hover:text-foreground transition-colors"
+              className="absolute right-3 top-3 text-foreground/60 hover:text-foreground transition-colors"
             >
               <X size={14} />
             </button>
-            <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+            <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
               Cookies
             </div>
             <p className="mt-2 text-sm leading-relaxed text-foreground/75">
@@ -120,7 +120,7 @@ export function CookieConsent() {
                         <div className="font-mono text-[11px] uppercase tracking-[0.15em] text-foreground/70">
                           Strictly necessary
                         </div>
-                        <p className="mt-1 text-xs text-foreground/55">
+                        <p className="mt-1 text-xs text-foreground/70">
                           Theme preference and your consent choice. Required for the site to work.
                         </p>
                       </div>
@@ -131,7 +131,7 @@ export function CookieConsent() {
                         <div className="font-mono text-[11px] uppercase tracking-[0.15em] text-foreground/70">
                           Analytics
                         </div>
-                        <p className="mt-1 text-xs text-foreground/55">
+                        <p className="mt-1 text-xs text-foreground/70">
                           Helps us understand which pages are useful.
                         </p>
                       </div>
@@ -142,7 +142,7 @@ export function CookieConsent() {
                         <div className="font-mono text-[11px] uppercase tracking-[0.15em] text-foreground/70">
                           Marketing
                         </div>
-                        <p className="mt-1 text-xs text-foreground/55">
+                        <p className="mt-1 text-xs text-foreground/70">
                           Advertising measurement, e.g. conversion tracking.
                         </p>
                       </div>

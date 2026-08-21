@@ -37,7 +37,7 @@ export function Process() {
     <section id="process" className="relative border-t border-foreground/10 py-20 md:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-14 md:mb-20">
-          <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             <span className="h-1.5 w-1.5 bg-[var(--lime)]" /> 03 — Mission Sequence
           </div>
           <h2 className="font-display text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.03em]">
@@ -75,21 +75,21 @@ export function Process() {
               >
                 <div className="relative flex justify-start md:justify-end md:pr-8">
                   <span className="absolute left-[5px] top-2 h-3 w-3 bg-[var(--lime)] lime-glow md:left-auto md:right-[-30px]" />
-                  <span className="hidden md:flex items-baseline gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40">
+                  <span className="hidden md:flex items-baseline gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/60">
                     Step{" "}
-                    <span className="text-[var(--lime)] text-base">
+                    <span className="text-accent-text text-base">
                       0<NumberTicker value={s.n} />
                     </span>
                   </span>
                 </div>
                 <div className="md:pl-8">
-                  <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)] md:hidden">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text md:hidden">
                     Step 0{s.n}
                   </div>
                   <h3 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">
                     {s.title}
                   </h3>
-                  <p className="mt-3 max-w-md text-foreground/55 md:max-w-none">{s.body}</p>
+                  <p className="mt-3 max-w-md text-foreground/70 md:max-w-none">{s.body}</p>
                 </div>
               </Reveal>
             ))}

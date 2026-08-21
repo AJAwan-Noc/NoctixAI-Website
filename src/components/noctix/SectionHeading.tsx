@@ -15,7 +15,7 @@ export function SectionHeading({
     <div className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
       {eyebrow && (
         <div
-          className={`mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)] ${
+          className={`mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text ${
             align === "center" ? "justify-center" : ""
           }`}
         >

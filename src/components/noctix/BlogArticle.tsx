@@ -69,19 +69,19 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
       <JsonLd data={schema} />
 
       {isPreview && (
-        <div className="mb-8 border border-[var(--lime)]/40 bg-[var(--lime)]/10 px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--lime)]">
+        <div className="mb-8 border border-[var(--lime)]/40 bg-[var(--lime)]/10 px-4 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-accent-text">
           Draft preview — not published, not indexed
         </div>
       )}
 
       <Link
         to="/blog"
-        className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]"
+        className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text"
       >
         ← All articles
       </Link>
       <div className="mt-6 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/50">
-        <span className="text-[var(--lime)]">{post.keyword}</span>
+        <span className="text-accent-text">{post.keyword}</span>
         <span>·</span>
         <span>{post.readTime}</span>
       </div>
@@ -96,7 +96,7 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
 
       {post.externalLinks?.length > 0 && (
         <div className="mt-10 border-t border-foreground/10 pt-6">
-          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40">
+          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/60">
             Sources
           </div>
           <ul className="mt-3 space-y-1.5 text-sm">
@@ -106,7 +106,7 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="text-[var(--lime)] hover:underline"
+                  className="text-accent-text hover:underline"
                 >
                   {link.anchor_text || link.url}
                 </a>
@@ -125,7 +125,7 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
               href={post.authorLinkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--lime)] hover:underline"
+              className="text-accent-text hover:underline"
             >
               LinkedIn
             </a>
@@ -158,7 +158,7 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
           <ul className="mt-4 space-y-2">
             {post.internalLinks.map((link) => (
               <li key={link.url}>
-                <Link to={link.url} className="text-[var(--lime)] hover:underline">
+                <Link to={link.url} className="text-accent-text hover:underline">
                   {link.anchor_text || link.url}
                 </Link>
               </li>
@@ -169,7 +169,7 @@ export function BlogArticle({ post, isPreview = false }: { post: BlogPost; isPre
 
       <div className="relative mt-16 overflow-hidden border border-foreground/10 bg-background/40 p-10">
         <BorderBeam size={260} duration={14} />
-        <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+        <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
           Want this for your business?
         </div>
         <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight">

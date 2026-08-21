@@ -113,7 +113,7 @@ export function Services() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-16 flex flex-wrap items-end justify-between gap-6">
           <div>
-            <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+            <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
               <span className="h-1.5 w-1.5 bg-[var(--lime)]" /> 02 — Systems
             </div>
             <h2 className="font-display text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.03em]">
@@ -173,19 +173,19 @@ function ServiceCard({
       >
         <MagicCard className="group relative flex min-h-[340px] flex-col justify-between bg-background/60 p-8 transition-colors">
           <div className="flex items-center justify-between">
-            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
               {code}
             </span>
             <span className="h-2 w-2 bg-[var(--lime)] transition-transform group-hover:scale-150" />
           </div>
           <div>
             <h3 className="font-display text-2xl font-semibold tracking-tight">{title}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-foreground/55">{body}</p>
+            <p className="mt-3 text-sm leading-relaxed text-foreground/70">{body}</p>
             <ul className="mt-4 grid grid-cols-2 gap-x-3 gap-y-1.5">
               {points.map((p) => (
                 <li
                   key={p}
-                  className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/40"
+                  className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/60"
                 >
                   <span className="h-1 w-1 bg-[var(--lime)]/70" /> {p}
                 </li>

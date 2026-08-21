@@ -113,7 +113,7 @@ export function SimpleLeadForm({
   if (state === "success") {
     return (
       <div role="status" aria-live="polite" className="py-6">
-        <div className="font-display text-xl font-semibold text-[var(--lime)]">
+        <div className="font-display text-xl font-semibold text-accent-text">
           Thanks — that's in.
         </div>
         <p className="mt-2 text-sm text-foreground/60">{successMessage}</p>

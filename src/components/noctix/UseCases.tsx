@@ -55,14 +55,14 @@ export function UseCases() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
           <div>
-            <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+            <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
               <span className="h-1.5 w-1.5 bg-[var(--lime)]" /> 04 — Field Reports
             </div>
             <h2 className="font-display text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.03em]">
               Systems we ship.
             </h2>
           </div>
-          <p className="max-w-md font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40">
+          <p className="max-w-md font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/60">
             A bento of live builds — from voice agents to internal ops stacks.
           </p>
         </div>
@@ -74,7 +74,7 @@ export function UseCases() {
                 {c.featured && <BorderBeam size={200} duration={12} delay={i * 1.5} />}
                 <div className="relative flex h-full min-h-[180px] flex-col justify-between p-5 sm:p-6">
                   <div className="flex items-center justify-between">
-                    <span className="border border-[var(--lime)]/40 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-[var(--lime)]">
+                    <span className="border border-[var(--lime)]/40 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.25em] text-accent-text">
                       {c.tag}
                     </span>
                     <span className="font-mono text-[10px] text-foreground/30">
@@ -86,7 +86,7 @@ export function UseCases() {
                     <h3 className="font-display text-xl font-semibold tracking-tight md:text-2xl">
                       {c.title}
                     </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-foreground/55">{c.body}</p>
+                    <p className="mt-2 text-sm leading-relaxed text-foreground/70">{c.body}</p>
                   </div>
                 </div>
               </MagicCard>

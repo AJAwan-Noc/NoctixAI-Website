@@ -17,7 +17,7 @@ export function ServicesTeaser() {
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
           <div>
-            <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+            <div className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
               <span className="h-1.5 w-1.5 bg-[var(--lime)]" /> 02 — What we build
             </div>
             <h2 className="font-display text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.03em]">
@@ -41,14 +41,14 @@ export function ServicesTeaser() {
             <Reveal key={s.code} delay={i * 0.06}>
               <MagicCard className="flex min-h-[220px] flex-col justify-between bg-background/60 p-8 transition-colors">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
                     / {s.code}
                   </span>
                   <span className="h-2 w-2 bg-[var(--lime)] transition-transform group-hover:scale-150" />
                 </div>
                 <div>
                   <h3 className="font-display text-xl font-semibold tracking-tight">{s.title}</h3>
-                  <p className="mt-2 text-sm text-foreground/55">{s.body}</p>
+                  <p className="mt-2 text-sm text-foreground/70">{s.body}</p>
                 </div>
               </MagicCard>
             </Reveal>

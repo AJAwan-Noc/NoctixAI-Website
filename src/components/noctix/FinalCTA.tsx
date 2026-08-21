@@ -22,7 +22,7 @@ export function FinalCTA() {
           <BorderBeam size={280} duration={12} />
 
           <div className="relative text-center">
-            <Reveal className="mb-8 font-mono text-[10px] uppercase tracking-[0.5em] text-[var(--lime)]">
+            <Reveal className="mb-8 font-mono text-[10px] uppercase tracking-[0.5em] text-accent-text">
               / END TRANSMISSION
             </Reveal>
             <Reveal

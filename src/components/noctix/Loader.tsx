@@ -53,7 +53,7 @@ export function Loader() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2, duration: 0.4 }}
-              className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)] flicker"
+              className="font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text flicker"
             >
               Noctix AI System Online
             </motion.div>

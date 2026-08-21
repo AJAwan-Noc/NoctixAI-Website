@@ -69,7 +69,7 @@ export function Footer() {
             ]}
           />
         </div>
-        <div className="mt-16 flex flex-col-reverse items-start justify-between gap-4 border-t border-foreground/10 pt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/35 md:flex-row md:items-center">
+        <div className="mt-16 flex flex-col-reverse items-start justify-between gap-4 border-t border-foreground/10 pt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/60 md:flex-row md:items-center">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>© {new Date().getFullYear()} Noctix AI — All systems operational</span>
             <Link to="/privacy" className="hover:text-foreground transition-colors">
@@ -93,7 +93,7 @@ type Item = { label: string; to?: string; href?: string };
 function FooterCol({ title, items }: { title: string; items: Item[] }) {
   return (
     <div>
-      <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+      <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
         {title}
       </div>
       <ul className="flex flex-col gap-2 text-sm text-foreground/65">

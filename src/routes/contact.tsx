@@ -38,7 +38,7 @@ function ContactPage() {
           transition={{ duration: 0.6 }}
           className="relative"
         >
-          <div className="mb-4 max-w-full font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)] sm:tracking-[0.4em]">
+          <div className="mb-4 max-w-full font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text sm:tracking-[0.4em]">
             Book a free audit
           </div>
           <h1 className="max-w-full overflow-visible break-words pb-1 font-display text-[clamp(2rem,10.5vw,4.5rem)] font-semibold leading-[1.08] tracking-normal sm:tracking-[-0.03em] md:leading-[0.98]">
@@ -76,7 +76,7 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
   return (
     <MagicCard className="border border-foreground/10 bg-background/40">
       <div className="p-5">
-        <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+        <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
           {label}
         </div>
         <div className="mt-2 text-sm text-foreground/75">{value}</div>

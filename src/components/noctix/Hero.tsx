@@ -34,7 +34,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 2.6, duration: 0.6 }}
-          className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]"
+          className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text"
         >
           <span className="h-1.5 w-1.5 bg-[var(--lime)] flicker" />
           <span className="truncate">v1.0 — automation systems online</span>
@@ -113,7 +113,7 @@ function Stat({
 }) {
   return (
     <div className="min-w-0">
-      <div className="truncate text-foreground/40">// {label}</div>
+      <div className="truncate text-foreground/60">// {label}</div>
       <div className="mt-1 truncate text-foreground">
         {raw ? (
           raw

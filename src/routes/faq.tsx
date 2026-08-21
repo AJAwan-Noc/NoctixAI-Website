@@ -136,7 +136,7 @@ function FAQPage() {
           transition={{ duration: 0.6 }}
           className="relative"
         >
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             FAQ
           </div>
           <h1 className="font-display text-[clamp(2.4rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.03em]">
@@ -161,7 +161,7 @@ function FAQPage() {
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 md:pb-24">
         <div className="relative overflow-hidden border border-foreground/10 bg-background/40 p-6 sm:p-10">
           <BorderBeam size={260} duration={14} />
-          <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             Still unsure?
           </div>
           <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
@@ -212,7 +212,7 @@ function FAQ({
 function FAQHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center justify-center text-center">
-      <span className="mb-4 font-mono text-[10px] uppercase tracking-[0.35em] text-[var(--lime)]">
+      <span className="mb-4 font-mono text-[10px] uppercase tracking-[0.35em] text-accent-text">
         {subtitle}
       </span>
       <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{title}</h2>
@@ -321,7 +321,7 @@ function FAQItem({ question, answer }: FAQEntry) {
           transition={{ duration: 0.2 }}
           className="flex h-8 w-8 shrink-0 items-center justify-center border border-foreground/10 text-foreground/60"
         >
-          <Plus className={cn("h-4 w-4 transition-colors", isOpen && "text-[var(--lime)]")} />
+          <Plus className={cn("h-4 w-4 transition-colors", isOpen && "text-accent-text")} />
         </motion.span>
       </button>
       <motion.div

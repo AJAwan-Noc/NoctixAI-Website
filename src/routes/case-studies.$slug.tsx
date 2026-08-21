@@ -32,7 +32,7 @@ export const Route = createFileRoute("/case-studies/$slug")({
     <SiteShell>
       <div className="mx-auto max-w-3xl px-6 py-32 text-center">
         <h1 className="font-display text-3xl">Case study not found</h1>
-        <Link to="/case-studies" className="mt-6 inline-block text-[var(--lime)]">
+        <Link to="/case-studies" className="mt-6 inline-block text-accent-text">
           ← All case studies
         </Link>
       </div>
@@ -54,7 +54,7 @@ function CaseStudyPage() {
       <article className="mx-auto max-w-4xl px-6 py-20">
         <Link
           to="/case-studies"
-          className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]"
+          className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text"
         >
           ← All case studies
         </Link>
@@ -89,7 +89,7 @@ function CaseStudyPage() {
 
         <div className="relative mt-16 overflow-hidden border border-foreground/10 bg-background/40 p-10">
           <BorderBeam size={260} duration={14} />
-          <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             Your turn
           </div>
           <h3 className="mt-3 font-display text-3xl font-semibold tracking-tight">
@@ -111,7 +111,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <MagicCard className="bg-background/60">
       <div className="p-6">
-        <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+        <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
           {label}
         </div>
         <div className="mt-2 text-sm text-foreground/80">{value}</div>

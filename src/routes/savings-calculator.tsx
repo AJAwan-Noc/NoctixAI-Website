@@ -65,7 +65,7 @@ function SavingsCalculatorPage() {
   return (
     <SiteShell>
       <section className="mx-auto max-w-3xl px-4 sm:px-6 py-16 md:py-20">
-        <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+        <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
           Free tool
         </div>
         <h1 className="font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.03em]">
@@ -91,7 +91,7 @@ function SavingsCalculatorPage() {
                     onClick={() => setHoursIdx(i)}
                     className={`border px-3 py-2 text-sm transition ${
                       hoursIdx === i
-                        ? "border-[var(--lime)] bg-[var(--lime)]/10 text-[var(--lime)]"
+                        ? "border-[var(--lime)] bg-[var(--lime)]/10 text-accent-text"
                         : "border-foreground/15 text-foreground/70 hover:border-foreground/30"
                     }`}
                   >
@@ -113,7 +113,7 @@ function SavingsCalculatorPage() {
                     onClick={() => setRateIdx(i)}
                     className={`border px-3 py-2 text-sm transition ${
                       rateIdx === i
-                        ? "border-[var(--lime)] bg-[var(--lime)]/10 text-[var(--lime)]"
+                        ? "border-[var(--lime)] bg-[var(--lime)]/10 text-accent-text"
                         : "border-foreground/15 text-foreground/70 hover:border-foreground/30"
                     }`}
                   >
@@ -143,7 +143,7 @@ function SavingsCalculatorPage() {
 
           {showResult && (
             <div className="mt-10 border-t border-foreground/10 pt-10">
-              <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+              <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
                 Your estimate
               </div>
               <div className="mt-4 grid gap-6 sm:grid-cols-3">
@@ -151,19 +151,19 @@ function SavingsCalculatorPage() {
                   <div className="font-display text-3xl font-semibold">
                     {hoursSavedPerWeek.toFixed(0)} hrs
                   </div>
-                  <div className="mt-1 text-sm text-foreground/55">saved per week</div>
+                  <div className="mt-1 text-sm text-foreground/70">saved per week</div>
                 </div>
                 <div>
                   <div className="font-display text-3xl font-semibold">
                     {formatCurrency(monthlySavings)}
                   </div>
-                  <div className="mt-1 text-sm text-foreground/55">saved per month</div>
+                  <div className="mt-1 text-sm text-foreground/70">saved per month</div>
                 </div>
                 <div>
                   <div className="font-display text-3xl font-semibold">
                     {formatCurrency(annualSavings)}
                   </div>
-                  <div className="mt-1 text-sm text-foreground/55">saved per year</div>
+                  <div className="mt-1 text-sm text-foreground/70">saved per year</div>
                 </div>
               </div>
               <p className="mt-4 text-xs text-foreground/45">
@@ -172,7 +172,7 @@ function SavingsCalculatorPage() {
               </p>
 
               <div className="mt-10 border-t border-foreground/10 pt-10">
-                <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+                <div className="font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
                   Want the full breakdown?
                 </div>
                 <p className="mt-3 mb-6 text-sm text-foreground/60">

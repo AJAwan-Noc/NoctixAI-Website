@@ -26,7 +26,7 @@ function AutomationPlaybookPage() {
   return (
     <SiteShell>
       <section className="mx-auto max-w-3xl px-4 sm:px-6 py-16 md:py-20">
-        <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+        <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
           Free guide
         </div>
         <h1 className="font-display text-[clamp(2.2rem,5vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.03em]">
@@ -42,7 +42,7 @@ function AutomationPlaybookPage() {
           <FreebieForm />
         </div>
 
-        <p className="mt-6 text-xs text-foreground/40">
+        <p className="mt-6 text-xs text-foreground/60">
           One email with your download link. No newsletter, no spam.
         </p>
       </section>

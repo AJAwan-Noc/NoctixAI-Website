@@ -46,7 +46,7 @@ function BlogIndex() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             Field notes
           </div>
           <h1 className="font-display text-[clamp(2.4rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.03em]">
@@ -61,15 +61,15 @@ function BlogIndex() {
               <MagicCard className="group h-full bg-background/60">
                 <Link to="/blog/$slug" params={{ slug: p.slug }} className="block">
                   <div className="p-6 sm:p-8">
-                    <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+                    <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
                       <span>{p.keyword}</span>
-                      <span className="text-foreground/40">{p.readTime}</span>
+                      <span className="text-foreground/60">{p.readTime}</span>
                     </div>
                     <h2 className="mt-6 font-display text-2xl font-semibold leading-tight tracking-tight">
                       {p.title}
                     </h2>
-                    <p className="mt-3 text-sm text-foreground/55">{p.description}</p>
-                    <div className="mt-6 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--lime)]">
+                    <p className="mt-3 text-sm text-foreground/70">{p.description}</p>
+                    <div className="mt-6 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-accent-text">
                       Read article →
                     </div>
                   </div>
@@ -97,7 +97,7 @@ function BlogIndex() {
             )}
 
             <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-foreground/50">
-              Page <span className="text-[var(--lime)]">{page}</span> of {totalPages}
+              Page <span className="text-accent-text">{page}</span> of {totalPages}
             </span>
 
             {page < totalPages ? (

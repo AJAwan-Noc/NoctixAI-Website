@@ -66,20 +66,20 @@ export function FreebieTeaser() {
         type="button"
         onClick={dismiss}
         aria-label="Dismiss"
-        className="absolute right-2 top-2 text-foreground/40 hover:text-foreground/70"
+        className="absolute right-2 top-2 text-foreground/60 hover:text-foreground/70"
       >
         &times;
       </button>
-      <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-[var(--lime)]">
+      <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-accent-text">
         Free guide
       </div>
       <p className="mt-2 text-sm font-medium">12 automations worth building, free.</p>
-      <p className="mt-1 text-xs text-foreground/55">
+      <p className="mt-1 text-xs text-foreground/70">
         A real guide, not a newsletter signup. One email, no spam.
       </p>
       <Link
         to="/automation-playbook"
-        className="mt-3 inline-block font-mono text-[11px] uppercase tracking-[0.15em] text-[var(--lime)] hover:underline"
+        className="mt-3 inline-block font-mono text-[11px] uppercase tracking-[0.15em] text-accent-text hover:underline"
       >
         Get the guide -&gt;
       </Link>

@@ -70,7 +70,7 @@ export function Nav() {
           <Link
             to="/"
             activeOptions={{ exact: true }}
-            activeProps={{ className: "text-[var(--lime)] [&>span]:scale-x-100" }}
+            activeProps={{ className: "text-accent-text [&>span]:scale-x-100" }}
             inactiveProps={{ className: "text-foreground/70 hover:text-[var(--lime)]" }}
             className="group relative px-3 py-2 transition-colors"
           >
@@ -82,7 +82,7 @@ export function Nav() {
           <div className="relative" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <Link
               to="/services"
-              activeProps={{ className: "text-[var(--lime)] [&>span]:scale-x-100" }}
+              activeProps={{ className: "text-accent-text [&>span]:scale-x-100" }}
               inactiveProps={{ className: "text-foreground/70 hover:text-[var(--lime)]" }}
               className="group relative px-3 py-2 transition-colors"
             >
@@ -106,7 +106,7 @@ export function Nav() {
                 <Link
                   to="/services"
                   onClick={() => setServicesOpen(false)}
-                  className="block px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-[var(--lime)] transition-colors hover:bg-foreground/5"
+                  className="block px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-accent-text transition-colors hover:bg-foreground/5"
                 >
                   View all services →
                 </Link>
@@ -120,7 +120,7 @@ export function Nav() {
               key={l.to}
               to={l.to}
               activeOptions={l.exact ? { exact: true } : undefined}
-              activeProps={{ className: "text-[var(--lime)] [&>span]:scale-x-100" }}
+              activeProps={{ className: "text-accent-text [&>span]:scale-x-100" }}
               inactiveProps={{ className: "text-foreground/70 hover:text-[var(--lime)]" }}
               className="group relative px-3 py-2 transition-colors"
             >
@@ -161,7 +161,7 @@ export function Nav() {
             <Link
               to="/"
               activeOptions={{ exact: true }}
-              activeProps={{ className: "text-[var(--lime)]" }}
+              activeProps={{ className: "text-accent-text" }}
               inactiveProps={{ className: "text-foreground/80" }}
               onClick={() => setOpen(false)}
               className="border-b border-foreground/5 py-3"
@@ -177,7 +177,7 @@ export function Nav() {
             >
               Services
               <span
-                className={`text-[var(--lime)] transition-transform ${
+                className={`text-accent-text transition-transform ${
                   mobileServicesOpen ? "rotate-90" : ""
                 }`}
               >
@@ -192,7 +192,7 @@ export function Nav() {
                     setOpen(false);
                     setMobileServicesOpen(false);
                   }}
-                  className="block py-2 text-[10px] text-[var(--lime)]"
+                  className="block py-2 text-[10px] text-accent-text"
                 >
                   All services →
                 </Link>
@@ -217,7 +217,7 @@ export function Nav() {
                 key={l.to}
                 to={l.to}
                 activeOptions={l.exact ? { exact: true } : undefined}
-                activeProps={{ className: "text-[var(--lime)]" }}
+                activeProps={{ className: "text-accent-text" }}
                 inactiveProps={{ className: "text-foreground/80" }}
                 onClick={() => setOpen(false)}
                 className="border-b border-foreground/5 py-3"

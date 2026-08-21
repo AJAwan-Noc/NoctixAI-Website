@@ -51,7 +51,7 @@ export const Route = createFileRoute("/services/$slug")({
     <SiteShell>
       <div className="mx-auto max-w-3xl px-6 py-32 text-center">
         <h1 className="font-display text-3xl">Service not found</h1>
-        <Link to="/services" className="mt-6 inline-block text-[var(--lime)]">
+        <Link to="/services" className="mt-6 inline-block text-accent-text">
           ← All services
         </Link>
       </div>
@@ -97,7 +97,7 @@ function ServiceLandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             {page.serviceName}
           </div>
           <h1 className="font-display text-[clamp(2.2rem,6vw,4.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
@@ -106,7 +106,7 @@ function ServiceLandingPage() {
           <p className="mt-6 max-w-2xl text-lg text-foreground/65">{page.subheadline}</p>
           <a
             href="#get-started"
-            className="mt-8 inline-flex items-center gap-2 bg-[var(--lime)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-foreground transition-colors hover:bg-[var(--lime-glow)]"
+            className="mt-8 inline-flex items-center gap-2 bg-[var(--lime)] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-white transition-[filter,box-shadow] hover:brightness-110 hover:shadow-[0_0_24px_-4px_var(--lime)]"
           >
             Get started →
           </a>
@@ -128,7 +128,7 @@ function ServiceLandingPage() {
       {/* 3. The problem */}
       <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
         <Reveal>
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             The problem
           </div>
           <p className="max-w-3xl text-lg leading-relaxed text-foreground/70">{page.problemText}</p>
@@ -139,7 +139,7 @@ function ServiceLandingPage() {
       <section className="border-t border-foreground/10">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
           <Reveal>
-            <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+            <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
               The fix
             </div>
             <p className="max-w-3xl text-lg leading-relaxed text-foreground/70">
@@ -153,20 +153,20 @@ function ServiceLandingPage() {
       {page.howItWorks.length > 0 && (
         <section className="border-t border-foreground/10">
           <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
-            <div className="mb-12 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+            <div className="mb-12 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
               How it works
             </div>
             <div className="grid grid-cols-1 gap-px bg-foreground/10 md:grid-cols-3">
               {page.howItWorks.map((step, i) => (
                 <Reveal key={step.step} delay={i * 0.1}>
                   <MagicCard className="flex h-full flex-col bg-background/60 p-8">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
                       Step 0{step.step}
                     </span>
                     <h3 className="mt-4 font-display text-xl font-semibold tracking-tight">
                       {step.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-foreground/55">
+                    <p className="mt-3 text-sm leading-relaxed text-foreground/70">
                       {step.description}
                     </p>
                   </MagicCard>
@@ -181,7 +181,7 @@ function ServiceLandingPage() {
       {page.faq.length > 0 && (
         <section className="border-t border-foreground/10">
           <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 md:py-24">
-            <div className="mb-10 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+            <div className="mb-10 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
               FAQ
             </div>
             <div className="space-y-8">
@@ -201,7 +201,7 @@ function ServiceLandingPage() {
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
           <div className="grid gap-12 md:grid-cols-[1fr_minmax(300px,420px)]">
             <Reveal>
-              <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+              <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
                 Get started
               </div>
               <h2 className="font-display text-[clamp(1.8rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.02em]">

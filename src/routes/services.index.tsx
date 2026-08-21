@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
-import { SplineSceneSection } from "@/components/noctix/SplineSceneSection";
 import { Services as ServicesGrid } from "@/components/noctix/Services";
 import { Process } from "@/components/noctix/Process";
 import { BookingCTA } from "@/components/noctix/BookingCTA";
@@ -35,14 +34,13 @@ export const Route = createFileRoute("/services/")({
 function ServicesPage() {
   return (
     <SiteShell>
-      <SplineSceneSection />
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             01 — What we build
           </div>
           <h1 className="font-display text-[clamp(2.4rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.03em]">

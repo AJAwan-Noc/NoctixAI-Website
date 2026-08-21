@@ -198,7 +198,7 @@ export function WebsiteLeadForm({
       noValidate
       className="relative h-full bg-background/70 p-6 backdrop-blur-sm sm:p-8 md:p-10"
     >
-      <div className="mb-8 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40">
+      <div className="mb-8 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/60">
         {introLabel}
       </div>
 
@@ -282,7 +282,7 @@ export function WebsiteLeadForm({
             className="sm:col-span-2"
           />
           <label htmlFor={`${formId}-message`} className="flex flex-col gap-2 sm:col-span-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40">
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/60">
               What should we know?
             </span>
             <textarea
@@ -317,7 +317,7 @@ export function WebsiteLeadForm({
               <p
                 role="status"
                 aria-live="polite"
-                className="font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/40"
+                className="font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/60"
               >
                 Submitting your details...
               </p>
@@ -356,10 +356,10 @@ function TextField({
     <div className={`flex min-w-0 flex-col gap-2 ${className}`}>
       <label
         htmlFor={id}
-        className="break-words font-mono text-[10px] uppercase leading-5 tracking-[0.22em] text-foreground/40 sm:tracking-[0.3em]"
+        className="break-words font-mono text-[10px] uppercase leading-5 tracking-[0.22em] text-foreground/60 sm:tracking-[0.3em]"
       >
         {label}
-        {required ? <span className="text-[var(--lime)]"> *</span> : null}
+        {required ? <span className="text-accent-text"> *</span> : null}
       </label>
       <input
         id={id}
@@ -396,10 +396,10 @@ function SelectField({
     <div className={`flex min-w-0 flex-col gap-2 ${className}`}>
       <label
         htmlFor={id}
-        className="break-words font-mono text-[10px] uppercase leading-5 tracking-[0.22em] text-foreground/40 sm:tracking-[0.3em]"
+        className="break-words font-mono text-[10px] uppercase leading-5 tracking-[0.22em] text-foreground/60 sm:tracking-[0.3em]"
       >
         {label}
-        {required ? <span className="text-[var(--lime)]"> *</span> : null}
+        {required ? <span className="text-accent-text"> *</span> : null}
       </label>
       <select
         id={id}

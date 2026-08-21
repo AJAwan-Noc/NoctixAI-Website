@@ -26,14 +26,14 @@ function PrivacyPage() {
   return (
     <SiteShell>
       <article className="mx-auto max-w-3xl px-4 sm:px-6 py-16 md:py-20">
-        <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+        <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
           Legal
         </div>
         <h1 className="font-display text-[clamp(2rem,5vw,3.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
           Privacy Policy
         </h1>
-        <p className="mt-4 text-sm text-foreground/55">Effective {EFFECTIVE_DATE}</p>
-        <p className="mt-2 text-sm text-foreground/55">
+        <p className="mt-4 text-sm text-foreground/70">Effective {EFFECTIVE_DATE}</p>
+        <p className="mt-2 text-sm text-foreground/70">
           This page is maintained by Noctix AI to explain how we handle information collected
           through this website.
         </p>

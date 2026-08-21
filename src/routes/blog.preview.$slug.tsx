@@ -30,7 +30,7 @@ export const Route = createFileRoute("/blog/preview/$slug")({
         <p className="mt-4 text-foreground/60">
           This draft has already been approved, rejected, or the link is wrong.
         </p>
-        <Link to="/blog" className="mt-6 inline-block text-[var(--lime)]">
+        <Link to="/blog" className="mt-6 inline-block text-accent-text">
           ← All posts
         </Link>
       </div>

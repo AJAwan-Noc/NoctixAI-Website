@@ -56,7 +56,7 @@ export function FreebieForm() {
   if (state === "success") {
     return (
       <div role="status" aria-live="polite" className="py-6">
-        <div className="font-display text-xl font-semibold text-[var(--lime)]">
+        <div className="font-display text-xl font-semibold text-accent-text">
           Check your inbox.
         </div>
         <p className="mt-2 text-sm text-foreground/60">
@@ -70,7 +70,7 @@ export function FreebieForm() {
   if (state === "limited") {
     return (
       <div role="status" aria-live="polite" className="py-6">
-        <div className="font-display text-xl font-semibold text-[var(--lime)]">
+        <div className="font-display text-xl font-semibold text-accent-text">
           You've already got this one.
         </div>
         <p className="mt-2 text-sm text-foreground/60">

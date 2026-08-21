@@ -35,7 +35,7 @@ function CaseStudiesIndex() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             Selected work
           </div>
           <h1 className="font-display text-[clamp(2.4rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.03em]">
@@ -50,7 +50,7 @@ function CaseStudiesIndex() {
                 <Link to="/case-studies/$slug" params={{ slug: cs.slug }} className="block">
                   <div className="p-6 sm:p-8">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-accent-text">
                         {cs.industry}
                       </span>
                       <span className="h-2 w-2 bg-[var(--lime)] transition-transform group-hover:scale-150" />
@@ -58,11 +58,11 @@ function CaseStudiesIndex() {
                     <h2 className="mt-6 font-display text-2xl font-semibold tracking-tight">
                       {cs.title}
                     </h2>
-                    <p className="mt-3 text-sm leading-relaxed text-foreground/55">{cs.summary}</p>
-                    <div className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40">
+                    <p className="mt-3 text-sm leading-relaxed text-foreground/70">{cs.summary}</p>
+                    <div className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/60">
                       {cs.metric}
                     </div>
-                    <div className="mt-6 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--lime)]">
+                    <div className="mt-6 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-accent-text">
                       Read case study →
                     </div>
                   </div>

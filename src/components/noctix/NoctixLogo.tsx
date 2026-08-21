@@ -30,7 +30,7 @@ export function NoctixLogo({ className = "h-7 w-auto", variant = "full" }: Nocti
       <div className={cn("inline-flex items-center gap-3", className)}>
         <NoctixLogoMark className="h-full w-auto" />
         <span className="font-display text-[1.15em] font-semibold tracking-tight leading-none">
-          Noctix <span className="text-[var(--lime)]">AI</span>
+          Noctix <span className="text-accent-text">AI</span>
         </span>
       </div>
     );

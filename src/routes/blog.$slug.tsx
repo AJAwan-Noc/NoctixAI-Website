@@ -33,7 +33,7 @@ export const Route = createFileRoute("/blog/$slug")({
     <SiteShell>
       <div className="mx-auto max-w-3xl px-6 py-32 text-center">
         <h1 className="font-display text-3xl">Post not found</h1>
-        <Link to="/blog" className="mt-6 inline-block text-[var(--lime)]">
+        <Link to="/blog" className="mt-6 inline-block text-accent-text">
           ← All posts
         </Link>
       </div>

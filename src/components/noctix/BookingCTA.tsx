@@ -10,13 +10,13 @@ export function BookingCTA() {
       <Particles className="opacity-50" quantity={45} color="180,140,255" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mx-auto mb-10 max-w-4xl text-center md:mb-12">
-          <div className="mb-4 flex items-center justify-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
+          <div className="mb-4 flex items-center justify-center gap-3 font-mono text-[10px] uppercase tracking-[0.4em] text-accent-text">
             <span className="h-1.5 w-1.5 bg-[var(--lime)] flicker" /> 05 - Initiate Audit
           </div>
           <h2 className="font-display text-[clamp(2.2rem,5vw,4rem)] font-semibold leading-[1] tracking-[-0.03em]">
             Book your free
             <br />
-            <span className="text-[var(--lime)]">automation audit</span>.
+            <span className="text-accent-text">automation audit</span>.
           </h2>
         </div>
 
