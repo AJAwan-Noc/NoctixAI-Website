@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Linkedin, Instagram } from "lucide-react";
+import Linkedin from "lucide-react/dist/esm/icons/linkedin";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { NoctixLogo } from "./NoctixLogo";
 import { Ripple } from "@/components/ui/ripple";
 

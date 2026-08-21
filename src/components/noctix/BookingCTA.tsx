@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
 import { WebsiteLeadForm } from "@/components/noctix/WebsiteLeadForm";
+import { Reveal } from "@/components/noctix/Reveal";
 import { Particles } from "@/components/ui/particles";
 import { BorderBeam } from "@/components/ui/border-beam";
 
@@ -22,16 +22,12 @@ export function BookingCTA() {
 
         <div className="relative mx-auto w-full max-w-4xl bg-foreground/10">
           <BorderBeam size={280} duration={14} />
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+          <Reveal>
             <WebsiteLeadForm
               introLabel="// Intake - consultation details"
               submitLabel="Request Audit"
             />
-          </motion.div>
+          </Reveal>
         </div>
       </div>
     </section>

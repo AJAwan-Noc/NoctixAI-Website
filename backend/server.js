@@ -97,7 +97,29 @@ const allowedFields = [
   "company_website_confirm",
   "meta_event_id",
   "marketing_consent",
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "referrer",
+  "source_path",
+  "gclid",
+  "fbclid",
 ];
+
+const ATTRIBUTION_FIELDS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+  "referrer",
+  "source_path",
+  "gclid",
+  "fbclid",
+];
+const ATTRIBUTION_FIELD_MAX_LENGTH = 255;
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -135,7 +157,9 @@ function validateAndCleanForm(body) {
       return null;
     }
 
-    cleaned[field] = value;
+    cleaned[field] = ATTRIBUTION_FIELDS.includes(field)
+      ? value.slice(0, ATTRIBUTION_FIELD_MAX_LENGTH)
+      : value;
   }
 
   if (cleaned.company_website_confirm) {
@@ -171,6 +195,15 @@ function validateAndCleanForm(body) {
     company_website_confirm: cleaned.company_website_confirm,
     meta_event_id: cleaned.meta_event_id,
     marketing_consent: cleaned.marketing_consent,
+    utm_source: cleaned.utm_source,
+    utm_medium: cleaned.utm_medium,
+    utm_campaign: cleaned.utm_campaign,
+    utm_term: cleaned.utm_term,
+    utm_content: cleaned.utm_content,
+    referrer: cleaned.referrer,
+    source_path: cleaned.source_path,
+    gclid: cleaned.gclid,
+    fbclid: cleaned.fbclid,
     submitted_at: new Date().toISOString(),
   };
 }

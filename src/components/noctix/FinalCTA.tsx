@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Meteors } from "@/components/ui/meteors";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { Reveal } from "@/components/noctix/Reveal";
 
 export function FinalCTA() {
   return (
@@ -22,35 +22,30 @@ export function FinalCTA() {
           <BorderBeam size={280} duration={12} />
 
           <div className="relative text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="mb-8 font-mono text-[10px] uppercase tracking-[0.5em] text-[var(--lime)]"
-            >
+            <Reveal className="mb-8 font-mono text-[10px] uppercase tracking-[0.5em] text-[var(--lime)]">
               / END TRANSMISSION
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
+            </Reveal>
+            <Reveal
+              as="h2"
+              y={30}
+              duration={0.7}
+              viewportMargin=""
               className="font-display text-balance text-[clamp(2.4rem,7vw,6.5rem)] font-semibold leading-[0.95] tracking-[-0.04em]"
             >
               Your business does not need <br className="hidden md:block" /> more manual work.{" "}
               <br />
               It needs <span className="text-[var(--lime)] text-lime-glow">systems</span>.
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+            </Reveal>
+            <Reveal
+              as="p"
+              y={0}
+              duration={0.6}
+              delay={0.2}
+              viewportMargin=""
               className="mx-auto mt-8 max-w-2xl text-foreground/60 md:text-lg"
             >
               Book a Noctix automation audit and we'll show you what can be automated first.
-            </motion.p>
+            </Reveal>
             <div className="mt-10 flex justify-center">
               <MagneticButton>
                 <ShimmerButton

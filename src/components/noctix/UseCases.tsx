@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
 import { MagicCard } from "@/components/ui/magic-card";
 import { BorderBeam } from "@/components/ui/border-beam";
+import { Reveal } from "@/components/noctix/Reveal";
 
 const cases = [
   {
@@ -69,14 +69,7 @@ export function UseCases() {
 
         <div className="grid auto-rows-[minmax(160px,auto)] grid-cols-1 gap-3 sm:gap-4 md:grid-cols-4">
           {cases.map((c, i) => (
-            <motion.article
-              key={c.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              className={`relative ${c.span}`}
-            >
+            <Reveal key={c.title} as="article" delay={i * 0.05} className={`relative ${c.span}`}>
               <MagicCard className="h-full border border-foreground/10 bg-background/60">
                 {c.featured && <BorderBeam size={200} duration={12} delay={i * 1.5} />}
                 <div className="relative flex h-full min-h-[180px] flex-col justify-between p-5 sm:p-6">
@@ -97,7 +90,7 @@ export function UseCases() {
                   </div>
                 </div>
               </MagicCard>
-            </motion.article>
+            </Reveal>
           ))}
         </div>
       </div>

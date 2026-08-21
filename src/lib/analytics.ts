@@ -1,4 +1,5 @@
 import { hasConsent, onConsentChange } from "@/lib/consent";
+import type { Metric } from "web-vitals";
 
 export type ConversionEvent =
   | "lead_submit"
@@ -117,12 +118,36 @@ export function sendPageView(pathname: string) {
   gtag("event", "page_view", params);
 }
 
+// Only sends metrics once analytics consent is granted; safe to call speculatively.
+export function initWebVitals(): void {
+  if (typeof window === "undefined" || !hasConsent("analytics")) return;
+
+  import("web-vitals").then(({ onCLS, onINP, onLCP, onFCP, onTTFB }) => {
+    const report = (metric: Metric) => {
+      gtag("event", "web_vitals", {
+        metric_name: metric.name,
+        metric_value: metric.value,
+        metric_rating: metric.rating,
+        metric_id: metric.id,
+        page_path: window.location.pathname,
+      });
+    };
+
+    onCLS(report, { reportAllChanges: false });
+    onINP(report, { reportAllChanges: false });
+    onLCP(report, { reportAllChanges: false });
+    onFCP(report, { reportAllChanges: false });
+    onTTFB(report, { reportAllChanges: false });
+  });
+}
+
 // Loads gated scripts if consent already covers them, and on later grants so nothing needs a reload.
 export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void): () => void {
   if (hasConsent("analytics")) {
     console.log("[Analytics] initAnalytics: hasConsent('analytics') branch entered");
     gtag("consent", "update", { analytics_storage: "granted" });
     console.log("[Analytics] initAnalytics: gtag('consent','update',...) ran");
+    initWebVitals();
     onGrant("analytics");
   }
   if (hasConsent("marketing")) {
@@ -133,6 +158,7 @@ export function initAnalytics(onGrant: (kind: "analytics" | "marketing") => void
   return onConsentChange((state) => {
     if (state.analytics) {
       gtag("consent", "update", { analytics_storage: "granted" });
+      initWebVitals();
       onGrant("analytics");
     }
     if (state.marketing) {

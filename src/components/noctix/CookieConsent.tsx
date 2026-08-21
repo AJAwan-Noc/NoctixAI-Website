@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import X from "lucide-react/dist/esm/icons/x";
 import { readConsent, writeConsent } from "@/lib/consent";
 
 const buttonClass =

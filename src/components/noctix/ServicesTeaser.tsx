@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { MagicCard } from "@/components/ui/magic-card";
+import { Reveal } from "@/components/noctix/Reveal";
 
 const highlights = [
   { code: "01", title: "AI Voice Agents", body: "Answers calls. Dials leads. 24/7." },
@@ -38,13 +38,7 @@ export function ServicesTeaser() {
 
         <div className="grid grid-cols-1 gap-px bg-foreground/10 md:grid-cols-2 lg:grid-cols-4">
           {highlights.map((s, i) => (
-            <motion.div
-              key={s.code}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
-            >
+            <Reveal key={s.code} delay={i * 0.06}>
               <MagicCard className="flex min-h-[220px] flex-col justify-between bg-background/60 p-8 transition-colors">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
@@ -57,7 +51,7 @@ export function ServicesTeaser() {
                   <p className="mt-2 text-sm text-foreground/55">{s.body}</p>
                 </div>
               </MagicCard>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
       </div>

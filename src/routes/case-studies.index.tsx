@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
+import { Reveal } from "@/components/noctix/Reveal";
 import { caseStudies } from "@/content/caseStudies";
 import { MagicCard } from "@/components/ui/magic-card";
 import { AuroraText } from "@/components/ui/aurora-text";
@@ -44,13 +45,7 @@ function CaseStudiesIndex() {
 
         <div className="mt-16 grid grid-cols-1 gap-px bg-foreground/10 md:grid-cols-2">
           {caseStudies.map((cs, i) => (
-            <motion.div
-              key={cs.slug}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: (i % 2) * 0.06 }}
-            >
+            <Reveal key={cs.slug} delay={(i % 2) * 0.06}>
               <MagicCard className="group h-full bg-background/60">
                 <Link to="/case-studies/$slug" params={{ slug: cs.slug }} className="block">
                   <div className="p-6 sm:p-8">
@@ -73,7 +68,7 @@ function CaseStudiesIndex() {
                   </div>
                 </Link>
               </MagicCard>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
       </section>

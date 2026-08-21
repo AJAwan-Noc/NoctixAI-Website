@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
 import { SimpleLeadForm } from "@/components/noctix/SimpleLeadForm";
+import { Reveal } from "@/components/noctix/Reveal";
 import { AuroraText } from "@/components/ui/aurora-text";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { MagicCard } from "@/components/ui/magic-card";
@@ -116,51 +117,35 @@ function ServiceLandingPage() {
       {page.proofText && (
         <section className="border-y border-foreground/10 bg-foreground/[0.02]">
           <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="flex items-start gap-4"
-            >
+            <Reveal y={0} duration={0.6} viewportMargin="" className="flex items-start gap-4">
               <span className="mt-1 h-2 w-2 shrink-0 bg-[var(--lime)]" />
               <p className="text-sm leading-relaxed text-foreground/65">{page.proofText}</p>
-            </motion.div>
+            </Reveal>
           </div>
         </section>
       )}
 
       {/* 3. The problem */}
       <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5 }}
-        >
+        <Reveal>
           <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
             The problem
           </div>
           <p className="max-w-3xl text-lg leading-relaxed text-foreground/70">{page.problemText}</p>
-        </motion.div>
+        </Reveal>
       </section>
 
       {/* 4. The fix */}
       <section className="border-t border-foreground/10">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5 }}
-          >
+          <Reveal>
             <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
               The fix
             </div>
             <p className="max-w-3xl text-lg leading-relaxed text-foreground/70">
               {page.solutionText}
             </p>
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
@@ -173,13 +158,7 @@ function ServiceLandingPage() {
             </div>
             <div className="grid grid-cols-1 gap-px bg-foreground/10 md:grid-cols-3">
               {page.howItWorks.map((step, i) => (
-                <motion.div
-                  key={step.step}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
-                >
+                <Reveal key={step.step} delay={i * 0.1}>
                   <MagicCard className="flex h-full flex-col bg-background/60 p-8">
                     <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--lime)]">
                       Step 0{step.step}
@@ -191,7 +170,7 @@ function ServiceLandingPage() {
                       {step.description}
                     </p>
                   </MagicCard>
-                </motion.div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -221,12 +200,7 @@ function ServiceLandingPage() {
       <section id="get-started" className="border-t border-foreground/10">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 md:py-24">
           <div className="grid gap-12 md:grid-cols-[1fr_minmax(300px,420px)]">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5 }}
-            >
+            <Reveal>
               <div className="mb-4 font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--lime)]">
                 Get started
               </div>
@@ -237,7 +211,7 @@ function ServiceLandingPage() {
                 Fill in the short form. We'll review your situation and come back with a concrete
                 recommendation — not a sales pitch.
               </p>
-            </motion.div>
+            </Reveal>
             <div className="relative overflow-hidden border border-foreground/10 bg-background/40 p-6 sm:p-8">
               <BorderBeam size={200} duration={14} />
               <SimpleLeadForm

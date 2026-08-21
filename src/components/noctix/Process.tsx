@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { NumberTicker } from "@/components/ui/number-ticker";
+import { Reveal } from "@/components/noctix/Reveal";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const steps = [
   {
@@ -30,6 +32,7 @@ const steps = [
 ];
 
 export function Process() {
+  const reduced = useReducedMotion();
   return (
     <section id="process" className="relative border-t border-foreground/10 py-20 md:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -47,10 +50,10 @@ export function Process() {
           <div className="absolute left-[11px] top-0 h-full w-px overflow-hidden md:left-1/2">
             <div className="h-full w-full bg-foreground/10" />
             <motion.div
-              initial={{ scaleY: 0 }}
-              whileInView={{ scaleY: 1 }}
+              initial={reduced ? false : { scaleY: 0 }}
+              whileInView={reduced ? undefined : { scaleY: 1 }}
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 1.6, ease: "easeOut" }}
+              transition={{ duration: reduced ? 0 : 1.6, ease: "easeOut" }}
               style={{ transformOrigin: "top" }}
               className="absolute inset-0 bg-gradient-to-b from-[var(--lime)] via-[var(--lime-glow)] to-transparent"
             />
@@ -58,12 +61,12 @@ export function Process() {
 
           <div className="flex flex-col gap-16">
             {steps.map((s, i) => (
-              <motion.div
+              <Reveal
                 key={s.n}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, delay: i * 0.05 }}
+                y={30}
+                duration={0.6}
+                delay={i * 0.05}
+                viewportMargin="-100px"
                 className={`relative grid grid-cols-[24px_1fr] gap-6 md:grid-cols-2 md:gap-12 ${
                   i % 2 === 1
                     ? "md:[&>*:nth-child(2)]:order-first md:[&>*:nth-child(2)]:text-right"
@@ -88,7 +91,7 @@ export function Process() {
                   </h3>
                   <p className="mt-3 max-w-md text-foreground/55 md:max-w-none">{s.body}</p>
                 </div>
-              </motion.div>
+              </Reveal>
             ))}
           </div>
         </div>

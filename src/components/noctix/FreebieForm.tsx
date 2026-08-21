@@ -2,6 +2,7 @@ import { useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { track } from "@/lib/analytics";
+import { getAttribution } from "@/lib/attribution";
 
 const FREEBIE_ENDPOINT = "https://api.noctix.app/api/freebie-request";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -30,7 +31,7 @@ export function FreebieForm() {
       const response = await fetch(FREEBIE_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), ...getAttribution() }),
       });
       const data = await response.json();
       if (!response.ok || data.success !== true) {

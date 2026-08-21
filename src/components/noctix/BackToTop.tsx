@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUp } from "lucide-react";
+import ArrowUp from "lucide-react/dist/esm/icons/arrow-up";
 import { useLenis } from "./ScrollContext";
 
 export function BackToTop() {

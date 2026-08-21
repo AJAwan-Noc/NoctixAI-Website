@@ -2,7 +2,9 @@ import { useEffect, useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { newEventId, track } from "@/lib/analytics";
+import { getAttribution } from "@/lib/attribution";
 import { hasConsent } from "@/lib/consent";
+import type { AttributionFields } from "@/lib/lead-schema";
 
 const WEBSITE_FORM_ENDPOINT = "https://api.noctix.app/api/website-form-filled";
 
@@ -24,7 +26,7 @@ type WebsiteFormPayload = {
   company_website_confirm: string;
   meta_event_id: string;
   marketing_consent: boolean;
-};
+} & AttributionFields;
 
 type WebsiteFormResponse = {
   success?: boolean;
@@ -156,6 +158,7 @@ export function WebsiteLeadForm({
       company_website_confirm: readFormValue(formData, "company_website_confirm"),
       meta_event_id: metaEventId,
       marketing_consent: hasConsent("marketing"),
+      ...getAttribution(),
     };
 
     const nextErrors = validatePayload(payload);

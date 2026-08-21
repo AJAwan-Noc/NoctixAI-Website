@@ -3,6 +3,7 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { SITE, canonical, ogImage } from "@/lib/seo";
 import { SiteShell } from "@/components/noctix/SiteShell";
+import { Reveal } from "@/components/noctix/Reveal";
 import { getPublishedPosts } from "@/lib/blog-server";
 import { MagicCard } from "@/components/ui/magic-card";
 import { AuroraText } from "@/components/ui/aurora-text";
@@ -56,13 +57,7 @@ function BlogIndex() {
 
         <div className="mt-16 grid grid-cols-1 gap-px bg-foreground/10 md:grid-cols-2">
           {posts.map((p, i) => (
-            <motion.article
-              key={p.slug}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.5, delay: (i % 2) * 0.06 }}
-            >
+            <Reveal key={p.slug} as="article" delay={(i % 2) * 0.06}>
               <MagicCard className="group h-full bg-background/60">
                 <Link to="/blog/$slug" params={{ slug: p.slug }} className="block">
                   <div className="p-6 sm:p-8">
@@ -80,7 +75,7 @@ function BlogIndex() {
                   </div>
                 </Link>
               </MagicCard>
-            </motion.article>
+            </Reveal>
           ))}
         </div>
 

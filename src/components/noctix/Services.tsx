@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { MagicCard } from "@/components/ui/magic-card";
+import { Reveal } from "@/components/noctix/Reveal";
 
 const services = [
   {
@@ -165,13 +165,7 @@ function ServiceCard({
   spanFull?: boolean;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.5, delay: (index % 3) * 0.06 }}
-      className={spanFull ? "col-span-full" : undefined}
-    >
+    <Reveal delay={(index % 3) * 0.06} className={spanFull ? "col-span-full" : undefined}>
       <Link
         to="/services/$slug"
         params={{ slug }}
@@ -201,6 +195,6 @@ function ServiceCard({
           <div className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-[var(--lime)] transition-transform duration-500 group-hover:scale-x-100" />
         </MagicCard>
       </Link>
-    </motion.div>
+    </Reveal>
   );
 }

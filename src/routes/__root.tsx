@@ -7,13 +7,14 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { ThemeProvider, noFlashScript } from "@/components/noctix/ThemeProvider";
 import { CookieConsent } from "@/components/noctix/CookieConsent";
 import { Analytics } from "@/components/noctix/Analytics";
 import { consentDefaultScript, gtagBootstrapScript, GA_MEASUREMENT_ID } from "@/lib/analytics";
+import { captureAttribution } from "@/lib/attribution";
 import { SITE, canonical, ogImage } from "@/lib/seo";
 import { JsonLd } from "@/lib/json-ld";
 import { organizationSchema, websiteSchema } from "@/lib/schema";
@@ -147,6 +148,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    captureAttribution();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

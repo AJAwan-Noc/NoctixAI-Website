@@ -262,3 +262,30 @@
     opacity: 0;
   }
 }
+
+/* Freezes the CSS-driven (non-framer-motion) decorative animations at a static frame. */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes aurora-shift {
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes border-beam {
+    100% {
+      offset-distance: 0%;
+    }
+  }
+
+  @keyframes shimmer-slide {
+    to {
+      transform: translate(0, 0);
+    }
+  }
+
+  @keyframes spin-around {
+    100% {
+      transform: translateZ(0) rotate(0deg);
+    }
+  }
+}

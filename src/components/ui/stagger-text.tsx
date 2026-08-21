@@ -73,17 +73,28 @@ function StaggerText({
 }: StaggerTextProps) {
   const words = text.split(" ");
   const ref = React.useRef<HTMLDivElement>(null);
+  const [hasMounted, setHasMounted] = React.useState(false);
   const isInView = useInView(ref, {
     once: true,
     amount: 0.3,
   });
 
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // The server has no viewport to observe, so isInView is stuck false for the SSR paint and the
+  // first client render -- rendering that as-is would serialize every character at opacity:0
+  // with nothing to ever correct it for no-JS/slow-JS visitors. Assume visible until mounted,
+  // then hand off entirely to the real observer so the scroll-triggered reveal still plays.
+  const isVisible = !hasMounted || isInView;
+
   return (
     <motion.div
       ref={ref}
       transition={{ staggerChildren: stagger }}
-      initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
+      initial={hasMounted ? "hidden" : false}
+      animate={isVisible ? "visible" : "hidden"}
       className={cn("relative", className)}
       {...props}
     >

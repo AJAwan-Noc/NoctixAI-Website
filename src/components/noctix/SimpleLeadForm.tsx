@@ -2,6 +2,7 @@ import { useId, useState, type FormEvent } from "react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { newEventId, track } from "@/lib/analytics";
+import { getAttribution } from "@/lib/attribution";
 import { hasConsent } from "@/lib/consent";
 
 const WEBSITE_FORM_ENDPOINT = "https://api.noctix.app/api/website-form-filled";
@@ -89,6 +90,7 @@ export function SimpleLeadForm({
       company_website_confirm: "",
       meta_event_id: metaEventId,
       marketing_consent: hasConsent("marketing"),
+      ...getAttribution(),
     };
 
     try {
